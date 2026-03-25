@@ -204,6 +204,13 @@
         </div>
       </div>
       <div class="field" id="ashCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="ashCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-ashCountryOther">Please enter your country.</div></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>ASH In-house Party Number of Attendees <span class="req">*</span></label>
+          <input type="number" id="ashAttendees" placeholder="Enter number of attendees" min="1" />
+          <div class="error-msg" id="err-ashAttendees">Please enter number of attendees.</div>
+        </div>
+      </div>
       <div class="submit-area"><button class="btn-submit" id="ashSubmitBtn" onclick="submitAsh()"><span>Register for ASH Party</span></button></div>
     </div>
 
@@ -234,6 +241,13 @@
         </div>
       </div>
       <div class="field" id="boothCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="boothCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-boothCountryOther">Please enter your country.</div></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Booth Party Number of Attendees <span class="req">*</span></label>
+          <input type="number" id="boothAttendees" placeholder="Enter number of attendees" min="1" />
+          <div class="error-msg" id="err-boothAttendees">Please enter number of attendees.</div>
+        </div>
+      </div>
       <div class="submit-area"><button class="btn-submit" id="boothSubmitBtn" onclick="submitBooth()"><span>Register for Booth Party</span></button></div>
     </div>
 
@@ -331,7 +345,7 @@ function validateFibo() {
 
 function validateAsh() {
   let ok = true;
-  const fields = [{ id: 'ashFullName', errId: 'err-ashFullName' }, { id: 'ashCompany', errId: 'err-ashCompany' }, { id: 'ashCountry', errId: 'err-ashCountry' }];
+  const fields = [{ id: 'ashFullName', errId: 'err-ashFullName' }, { id: 'ashCompany', errId: 'err-ashCompany' }, { id: 'ashCountry', errId: 'err-ashCountry' }, { id: 'ashAttendees', errId: 'err-ashAttendees' }];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
   if (document.getElementById('ashCountry').value === 'Other') { const otherVal = document.getElementById('ashCountryOther').value.trim(); if (!otherVal) { show('err-ashCountryOther'); ok = false; } else hide('err-ashCountryOther'); }
   return ok;
@@ -339,7 +353,7 @@ function validateAsh() {
 
 function validateBooth() {
   let ok = true;
-  const fields = [{ id: 'boothFullName', errId: 'err-boothFullName' }, { id: 'boothCompany', errId: 'err-boothCompany' }, { id: 'boothCountry', errId: 'err-boothCountry' }];
+  const fields = [{ id: 'boothFullName', errId: 'err-boothFullName' }, { id: 'boothCompany', errId: 'err-boothCompany' }, { id: 'boothCountry', errId: 'err-boothCountry' }, { id: 'boothAttendees', errId: 'err-boothAttendees' }];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
   if (document.getElementById('boothCountry').value === 'Other') { const otherVal = document.getElementById('boothCountryOther').value.trim(); if (!otherVal) { show('err-boothCountryOther'); ok = false; } else hide('err-boothCountryOther'); }
   return ok;
@@ -396,7 +410,7 @@ async function submitAsh() {
   btn.querySelector('span').textContent = 'Submitting...';
   
   const countryVal = document.getElementById('ashCountry').value === 'Other' ? document.getElementById('ashCountryOther').value.trim() : document.getElementById('ashCountry').value;
-  const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), country: countryVal };
+  const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), country: countryVal, attendees: document.getElementById('ashAttendees').value };
   
   submitToGAS(payload, btn, originalText, 'Thank you for registering for the ASH Party. We look forward to seeing you there!');
 }
@@ -410,7 +424,7 @@ async function submitBooth() {
   btn.querySelector('span').textContent = 'Submitting...';
   
   const countryVal = document.getElementById('boothCountry').value === 'Other' ? document.getElementById('boothCountryOther').value.trim() : document.getElementById('boothCountry').value;
-  const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), country: countryVal };
+  const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), country: countryVal, attendees: document.getElementById('boothAttendees').value };
   
   submitToGAS(payload, btn, originalText, 'Thank you for registering for the Booth Party. Please collect your wristband on-site.');
 }
