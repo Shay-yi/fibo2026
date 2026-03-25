@@ -458,7 +458,7 @@
   <div class="header-meta">
     <span>Cologne, Germany</span>
     <span>April 16 – 19, 2026</span>
-    <span>Hall 9 / Booth TBA</span>
+    <span>Booth 6A59</span>
   </div>
 </header>
 
@@ -499,27 +499,93 @@
     <div class="form-grid">
       <div class="field">
         <label>Country / Region <span class="req">*</span></label>
-        <select id="country">
+        <select id="country" onchange="handleCountryChange(this)">
           <option value="">— Select Country —</option>
-          <option>Germany</option>
-          <option>United States</option>
-          <option>United Kingdom</option>
-          <option>China</option>
-          <option>France</option>
-          <option>Italy</option>
-          <option>Spain</option>
-          <option>Netherlands</option>
-          <option>Australia</option>
-          <option>Canada</option>
-          <option>Japan</option>
-          <option>South Korea</option>
-          <option>Brazil</option>
-          <option>India</option>
-          <option>Russia</option>
-          <option>UAE</option>
-          <option>Other</option>
+          <optgroup label="Europe">
+            <option>Albania</option>
+            <option>Andorra</option>
+            <option>Austria</option>
+            <option>Belarus</option>
+            <option>Belgium</option>
+            <option>Bosnia and Herzegovina</option>
+            <option>Bulgaria</option>
+            <option>Croatia</option>
+            <option>Cyprus</option>
+            <option>Czech Republic</option>
+            <option>Denmark</option>
+            <option>Estonia</option>
+            <option>Finland</option>
+            <option>France</option>
+            <option>Germany</option>
+            <option>Greece</option>
+            <option>Hungary</option>
+            <option>Iceland</option>
+            <option>Ireland</option>
+            <option>Italy</option>
+            <option>Kosovo</option>
+            <option>Latvia</option>
+            <option>Liechtenstein</option>
+            <option>Lithuania</option>
+            <option>Luxembourg</option>
+            <option>Malta</option>
+            <option>Moldova</option>
+            <option>Monaco</option>
+            <option>Montenegro</option>
+            <option>Netherlands</option>
+            <option>North Macedonia</option>
+            <option>Norway</option>
+            <option>Poland</option>
+            <option>Portugal</option>
+            <option>Romania</option>
+            <option>Russia</option>
+            <option>San Marino</option>
+            <option>Serbia</option>
+            <option>Slovakia</option>
+            <option>Slovenia</option>
+            <option>Spain</option>
+            <option>Sweden</option>
+            <option>Switzerland</option>
+            <option>Turkey</option>
+            <option>Ukraine</option>
+            <option>United Kingdom</option>
+          </optgroup>
+          <optgroup label="Asia">
+            <option>China</option>
+            <option>India</option>
+            <option>Japan</option>
+            <option>South Korea</option>
+            <option>UAE</option>
+            <option>Saudi Arabia</option>
+            <option>Singapore</option>
+            <option>Thailand</option>
+            <option>Vietnam</option>
+            <option>Indonesia</option>
+            <option>Malaysia</option>
+          </optgroup>
+          <optgroup label="Americas">
+            <option>United States</option>
+            <option>Canada</option>
+            <option>Brazil</option>
+            <option>Mexico</option>
+            <option>Argentina</option>
+            <option>Colombia</option>
+          </optgroup>
+          <optgroup label="Other Regions">
+            <option>Australia</option>
+            <option>New Zealand</option>
+            <option>South Africa</option>
+            <option>Egypt</option>
+            <option>Nigeria</option>
+          </optgroup>
+          <option value="Other">Other</option>
         </select>
         <div class="error-msg" id="err-country">Please select your country.</div>
+      </div>
+      <!-- Other country input (hidden by default) -->
+      <div class="field" id="countryOtherField" style="display:none;">
+        <label>Please specify your country <span class="req">*</span></label>
+        <input type="text" id="countryOther" placeholder="Enter your country" />
+        <div class="error-msg" id="err-countryOther">Please enter your country.</div>
       </div>
       <div class="field">
         <label>Product Category <span class="req">*</span></label>
@@ -643,6 +709,18 @@
   let selectedDate = '';
   let selectedSlot = '';
 
+  function handleCountryChange(sel) {
+    const otherField = document.getElementById('countryOtherField');
+    if (sel.value === 'Other') {
+      otherField.style.display = 'flex';
+    } else {
+      otherField.style.display = 'none';
+      document.getElementById('countryOther').value = '';
+    }
+    hide('err-country');
+    hide('err-countryOther');
+  }
+
   function selectDay(card) {
     document.querySelectorAll('.day-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
@@ -697,6 +775,13 @@
       else hide(f.errId);
     });
 
+    // If "Other" country, require manual input
+    if (document.getElementById('country').value === 'Other') {
+      const otherVal = document.getElementById('countryOther').value.trim();
+      if (!otherVal) { show('err-countryOther'); ok = false; }
+      else hide('err-countryOther');
+    }
+
     // Email format
     const email = document.getElementById('email').value.trim();
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -720,12 +805,16 @@
     btn.disabled = true;
     btn.querySelector('span').textContent = 'Submitting…';
 
+    const countryVal = document.getElementById('country').value === 'Other'
+      ? document.getElementById('countryOther').value.trim()
+      : document.getElementById('country').value;
+
     const payload = {
       fullName:        document.getElementById('fullName').value.trim(),
       company:         document.getElementById('company').value.trim(),
       email:           document.getElementById('email').value.trim(),
       phone:           document.getElementById('phone').value.trim(),
-      country:         document.getElementById('country').value,
+      country:         countryVal,
       productCategory: document.getElementById('productCategory').value,
       meetingDate:     DAY_LABELS[selectedDate],
       timeSlot:        selectedSlot,
