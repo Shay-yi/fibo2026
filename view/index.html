@@ -29,7 +29,6 @@
     .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
     .error-msg { color: #e74c3c; font-size: 13px; font-family: 'DM Mono', monospace; margin-top: 16px; text-align: center; display: none; }
     .error-msg.visible { display: block; }
-    .helper-text { color: var(--gray-light); font-size: 12px; line-height: 1.6; text-align: center; margin-bottom: 18px; }
     .dashboard { display: none; }
     .dashboard.visible { display: block; }
     .welcome { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--gold); margin-bottom: 32px; letter-spacing: 0.1em; }
@@ -81,7 +80,7 @@
           <option>Kelly</option>
           <option>Josie</option>
           <option>Vera</option>
-          <option>Patrick</option>
+          <option>Patric</option>
           <option>Zack</option>
           <option>Owen</option>
           <option>Kat</option>
@@ -93,21 +92,6 @@
     </div>
     <button class="btn-submit" id="loginBtn" onclick="login()">LOGIN</button>
     <div class="error-msg" id="loginError">Invalid credentials. Please try again.</div>
-  </div>
-
-  <div class="login-box" id="changePasswordBox" style="display:none;">
-    <div class="login-title">CHANGE PASSWORD</div>
-    <p class="helper-text" id="changePasswordHint">For security, please set your personal password before entering the dashboard.</p>
-    <div class="field">
-      <label>New Password</label>
-      <input type="password" id="newPassword" placeholder="Enter new password" />
-    </div>
-    <div class="field">
-      <label>Confirm Password</label>
-      <input type="password" id="confirmPassword" placeholder="Confirm new password" />
-    </div>
-    <button class="btn-submit" id="changePasswordBtn" onclick="changePassword()">UPDATE PASSWORD</button>
-    <div class="error-msg" id="changePasswordError">Password update failed. Please try again.</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -152,14 +136,13 @@
 </main>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH9YjKQMzXeZsYGbDbF3CtTpYBvAjSWhhlj_mxCoGm_ML3jPkBpS4BsyK2BebZI4gd/exec';
+<<<<<<< HEAD
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOSkh46ihjz6A_VvZ0FJzkxWLWdTdqBP9qlC1SjSAByar-PcQsH_QXY83HsRBzTcJuPQ/exec';
+=======
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvzvAwpt3Q5oiY3HjwgufB5nRQTu9BGOrMVV37QuSn_m2FYGEHB_76BGil7U7rWgztFg/exec';
+>>>>>>> cf68e7787873c5a6826ad874c2e1f10b8cd60a92
 
 let sheetUrlCache = '';
-let pendingLoginName = '';
-let pendingLoginPassword = '';
-let pendingLoginData = null;
-let currentSalesName = '';
-let currentSalesPassword = '';
 
 function login() {
   const name = document.getElementById('salesName').value;
@@ -184,11 +167,11 @@ function login() {
     .then(r => r.json())
     .then(data => {
       if (data.success) {
-        if (data.mustChangePassword) {
-          showChangePasswordBox(name, password, data);
-        } else {
-          enterDashboard(name, data, password);
+        if (data.sheetUrl) {
+          sheetUrlCache = data.sheetUrl;
+          document.getElementById('sheetOpenBtn').style.display = 'inline-block';
         }
+        showDashboard(name, data.data);
       } else {
         sheetUrlCache = '';
         if (document.getElementById('sheetOpenBtn')) {
@@ -208,146 +191,11 @@ function login() {
     });
 }
 
-function enterDashboard(name, loginData, password) {
-  currentSalesName = name;
-  currentSalesPassword = password;
-
-  if (loginData.sheetUrl) {
-    sheetUrlCache = loginData.sheetUrl;
-    document.getElementById('sheetOpenBtn').style.display = 'inline-block';
-  } else {
-    sheetUrlCache = '';
-    document.getElementById('sheetOpenBtn').style.display = 'none';
-  }
-  showDashboardShell(name);
-  loadDashboardData(name, password);
-}
-
-function showChangePasswordBox(name, oldPassword, loginData) {
-  pendingLoginName = name;
-  pendingLoginPassword = oldPassword;
-  pendingLoginData = loginData;
-
-  document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('dashboard').classList.remove('visible');
-  document.getElementById('changePasswordBox').style.display = 'block';
-  document.getElementById('changePasswordHint').textContent = `Welcome, ${name}. Please set your personal password before entering the dashboard.`;
-  document.getElementById('changePasswordError').classList.remove('visible');
-  document.getElementById('newPassword').value = '';
-  document.getElementById('confirmPassword').value = '';
-}
-
-function changePassword() {
-  const newPassword = document.getElementById('newPassword').value.trim();
-  const confirmPassword = document.getElementById('confirmPassword').value.trim();
-  const errorEl = document.getElementById('changePasswordError');
-  const btn = document.getElementById('changePasswordBtn');
-
-  errorEl.classList.remove('visible');
-
-  if (!newPassword || !confirmPassword) {
-    errorEl.textContent = 'Please enter and confirm your new password.';
-    errorEl.classList.add('visible');
-    return;
-  }
-
-  if (newPassword.length < 6) {
-    errorEl.textContent = 'New password must be at least 6 characters.';
-    errorEl.classList.add('visible');
-    return;
-  }
-
-  if (newPassword !== confirmPassword) {
-    errorEl.textContent = 'The two passwords do not match.';
-    errorEl.classList.add('visible');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'UPDATING...';
-
-  const formBody = 'data=' + encodeURIComponent(JSON.stringify({
-    action: 'changePassword',
-    salesName: pendingLoginName,
-    oldPassword: pendingLoginPassword,
-    newPassword: newPassword
-  }));
-
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-    body: formBody
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.success) {
-        errorEl.textContent = data.message || 'Password update failed.';
-        errorEl.classList.add('visible');
-        return;
-      }
-
-      document.getElementById('changePasswordBox').style.display = 'none';
-      pendingLoginPassword = newPassword;
-      enterDashboard(pendingLoginName, pendingLoginData || {}, newPassword);
-    })
-    .catch(() => {
-      errorEl.textContent = 'Connection error. Please try again.';
-      errorEl.classList.add('visible');
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.textContent = 'UPDATE PASSWORD';
-    });
-}
-
-function showDashboardShell(name) {
-  document.getElementById('changePasswordBox').style.display = 'none';
+function showDashboard(name, data) {
   document.getElementById('loginBox').style.display = 'none';
   document.getElementById('dashboard').classList.add('visible');
   document.getElementById('salesDisplay').textContent = name;
-
-  document.getElementById('fiboBody').innerHTML = '';
-  document.getElementById('ashBody').innerHTML = '';
-  document.getElementById('boothBody').innerHTML = '';
-  document.getElementById('fiboCount').textContent = '...';
-  document.getElementById('ashCount').textContent = '...';
-  document.getElementById('boothCount').textContent = '...';
-  document.getElementById('fiboEmpty').style.display = 'block';
-  document.getElementById('ashEmpty').style.display = 'block';
-  document.getElementById('boothEmpty').style.display = 'block';
-  document.getElementById('fiboEmpty').textContent = 'Loading FIBO registrations...';
-  document.getElementById('ashEmpty').textContent = 'Loading ASH registrations...';
-  document.getElementById('boothEmpty').textContent = 'Loading Booth registrations...';
-}
-
-function loadDashboardData(name, password) {
-  fetch(`${SCRIPT_URL}?action=loadData&sales=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.success) {
-        const msg = data.message ? data.message : JSON.stringify(data);
-        document.getElementById('fiboCount').textContent = '0';
-        document.getElementById('ashCount').textContent = '0';
-        document.getElementById('boothCount').textContent = '0';
-        document.getElementById('fiboEmpty').textContent = 'Failed to load FIBO registrations: ' + msg;
-        document.getElementById('ashEmpty').textContent = 'Failed to load ASH registrations: ' + msg;
-        document.getElementById('boothEmpty').textContent = 'Failed to load Booth registrations: ' + msg;
-        return;
-      }
-
-      populateDashboardData(data.data || { fibo: [], ash: [], booth: [] });
-    })
-    .catch(() => {
-      document.getElementById('fiboCount').textContent = '0';
-      document.getElementById('ashCount').textContent = '0';
-      document.getElementById('boothCount').textContent = '0';
-      document.getElementById('fiboEmpty').textContent = 'Failed to load FIBO registrations (connection error).';
-      document.getElementById('ashEmpty').textContent = 'Failed to load ASH registrations (connection error).';
-      document.getElementById('boothEmpty').textContent = 'Failed to load Booth registrations (connection error).';
-    });
-}
-
-function populateDashboardData(data) {
+  
   // Populate FIBO data
   const fiboBody = document.getElementById('fiboBody');
   fiboBody.innerHTML = '';
@@ -359,7 +207,6 @@ function populateDashboardData(data) {
     });
   } else {
     document.getElementById('fiboEmpty').style.display = 'block';
-    document.getElementById('fiboEmpty').textContent = 'No FIBO meeting registrations yet.';
     document.getElementById('fiboCount').textContent = '0';
   }
   
@@ -374,7 +221,6 @@ function populateDashboardData(data) {
     });
   } else {
     document.getElementById('ashEmpty').style.display = 'block';
-    document.getElementById('ashEmpty').textContent = 'No ASH Party registrations yet.';
     document.getElementById('ashCount').textContent = '0';
   }
   
@@ -389,7 +235,6 @@ function populateDashboardData(data) {
     });
   } else {
     document.getElementById('boothEmpty').style.display = 'block';
-    document.getElementById('boothEmpty').textContent = 'No Booth Party registrations yet.';
     document.getElementById('boothCount').textContent = '0';
   }
 }
@@ -413,10 +258,6 @@ function openSheet() {
 // Enter key login
 document.getElementById('salesPassword').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') login();
-});
-
-document.getElementById('confirmPassword').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') changePassword();
 });
 </script>
 </body>
