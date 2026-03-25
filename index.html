@@ -349,31 +349,99 @@ async function submitFibo() {
   hide('globalError');
   if (!validateFibo()) return;
   const btn = document.getElementById('fiboSubmitBtn');
-  btn.disabled = true; btn.querySelector('span').textContent = 'Submitting...';
+  const originalText = btn.querySelector('span').textContent;
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Submitting...';
+  
   const salesVal = document.getElementById('fiboSalesContact').value === 'Other' ? document.getElementById('fiboSalesOther').value.trim() : document.getElementById('fiboSalesContact').value;
   const countryVal = document.getElementById('fiboCountry').value === 'Other' ? document.getElementById('fiboCountryOther').value.trim() : document.getElementById('fiboCountry').value;
   const payload = { eventType: 'FIBO', fullName: document.getElementById('fiboFullName').value.trim(), company: document.getElementById('fiboCompany').value.trim(), salesContact: salesVal, productCategory: document.getElementById('fiboProductCategory').value, country: countryVal, meetingDate: DAY_LABELS[selectedDate], timeSlot: selectedSlot, notes: document.getElementById('fiboNotes').value.trim() };
-  try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); showSuccess('Thank you for registering. Our team will reach out to confirm your meeting appointment.'); } catch (err) { showError(); btn.disabled = false; btn.querySelector('span').textContent = 'Submit Registration'; }
+  
+  // Create a hidden iframe for submission
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden-iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = SCRIPT_URL;
+  form.target = 'hidden-iframe';
+  form.style.display = 'none';
+  
+  const input = document.createElement('input');
+  input.name = 'data';
+  input.value = JSON.stringify(payload);
+  form.appendChild(input);
+  
+  document.body.appendChild(form);
+  form.submit();
+  
+  // Show success after submission
+  setTimeout(() => {
+    showSuccess('Thank you for registering. Our team will reach out to confirm your meeting appointment.');
+    btn.disabled = false;
+    btn.querySelector('span').textContent = originalText;
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  }, 2000);
 }
 
 async function submitAsh() {
   hide('globalError');
   if (!validateAsh()) return;
   const btn = document.getElementById('ashSubmitBtn');
-  btn.disabled = true; btn.querySelector('span').textContent = 'Submitting...';
+  const originalText = btn.querySelector('span').textContent;
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Submitting...';
+  
   const countryVal = document.getElementById('ashCountry').value === 'Other' ? document.getElementById('ashCountryOther').value.trim() : document.getElementById('ashCountry').value;
   const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), country: countryVal };
-  try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); showSuccess('Thank you for registering for the ASH Party. We look forward to seeing you there!'); } catch (err) { showError(); btn.disabled = false; btn.querySelector('span').textContent = 'Register for ASH Party'; }
+  
+  submitToGAS(payload, btn, originalText, 'Thank you for registering for the ASH Party. We look forward to seeing you there!');
 }
 
 async function submitBooth() {
   hide('globalError');
   if (!validateBooth()) return;
   const btn = document.getElementById('boothSubmitBtn');
-  btn.disabled = true; btn.querySelector('span').textContent = 'Submitting...';
+  const originalText = btn.querySelector('span').textContent;
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Submitting...';
+  
   const countryVal = document.getElementById('boothCountry').value === 'Other' ? document.getElementById('boothCountryOther').value.trim() : document.getElementById('boothCountry').value;
   const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), country: countryVal };
-  try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); showSuccess('Thank you for registering for the Booth Party. Please collect your wristband on-site.'); } catch (err) { showError(); btn.disabled = false; btn.querySelector('span').textContent = 'Register for Booth Party'; }
+  
+  submitToGAS(payload, btn, originalText, 'Thank you for registering for the Booth Party. Please collect your wristband on-site.');
+}
+
+function submitToGAS(payload, btn, originalText, successMsg) {
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden-iframe-' + Date.now();
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = SCRIPT_URL;
+  form.target = iframe.name;
+  form.style.display = 'none';
+  
+  const input = document.createElement('input');
+  input.name = 'data';
+  input.value = JSON.stringify(payload);
+  form.appendChild(input);
+  
+  document.body.appendChild(form);
+  form.submit();
+  
+  setTimeout(() => {
+    showSuccess(successMsg);
+    btn.disabled = false;
+    btn.querySelector('span').textContent = originalText;
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  }, 2000);
 }
 
 function showSuccess(msg) {
