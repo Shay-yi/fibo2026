@@ -498,6 +498,31 @@
 
     <div class="form-grid">
       <div class="field">
+        <label>Sales Contact Name <span class="req">*</span></label>
+        <input type="text" id="salesContact" placeholder="Name of your MBH Fitness sales contact" />
+        <div class="error-msg" id="err-salesContact">Please enter the sales contact name.</div>
+      </div>
+      <div class="field">
+        <label>Product Category <span class="req">*</span></label>
+        <select id="productCategory">
+          <option value="">— Select Category —</option>
+          <option>Strength Equipment</option>
+          <option>Cardio Equipment</option>
+          <option>Functional Training</option>
+          <option>Recovery & Wellness</option>
+          <option>Nutrition & Supplements</option>
+          <option>Wearables & Technology</option>
+          <option>Apparel & Accessories</option>
+          <option>Gym Flooring & Facilities</option>
+          <option>Software & Management</option>
+          <option>Other</option>
+        </select>
+        <div class="error-msg" id="err-productCategory">Please select a product category.</div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
         <label>Country / Region <span class="req">*</span></label>
         <select id="country" onchange="handleCountryChange(this)">
           <option value="">— Select Country —</option>
@@ -586,23 +611,6 @@
         <label>Please specify your country <span class="req">*</span></label>
         <input type="text" id="countryOther" placeholder="Enter your country" />
         <div class="error-msg" id="err-countryOther">Please enter your country.</div>
-      </div>
-      <div class="field">
-        <label>Product Category <span class="req">*</span></label>
-        <select id="productCategory">
-          <option value="">— Select Category —</option>
-          <option>Strength Equipment</option>
-          <option>Cardio Equipment</option>
-          <option>Functional Training</option>
-          <option>Recovery & Wellness</option>
-          <option>Nutrition & Supplements</option>
-          <option>Wearables & Technology</option>
-          <option>Apparel & Accessories</option>
-          <option>Gym Flooring & Facilities</option>
-          <option>Software & Management</option>
-          <option>Other</option>
-        </select>
-        <div class="error-msg" id="err-productCategory">Please select a product category.</div>
       </div>
     </div>
 
@@ -765,6 +773,7 @@
       { id: 'fullName',        errId: 'err-fullName' },
       { id: 'company',         errId: 'err-company' },
       { id: 'email',           errId: 'err-email' },
+      { id: 'salesContact',    errId: 'err-salesContact' },
       { id: 'country',         errId: 'err-country' },
       { id: 'productCategory', errId: 'err-productCategory' },
     ];
@@ -814,6 +823,7 @@
       company:         document.getElementById('company').value.trim(),
       email:           document.getElementById('email').value.trim(),
       phone:           document.getElementById('phone').value.trim(),
+      salesContact:    document.getElementById('salesContact').value.trim(),
       country:         countryVal,
       productCategory: document.getElementById('productCategory').value,
       meetingDate:     DAY_LABELS[selectedDate],
