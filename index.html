@@ -486,22 +486,40 @@
 
     <div class="form-grid">
       <div class="field">
-        <label>Email Address <span class="req">*</span></label>
-        <input type="email" id="email" placeholder="you@company.com" />
-        <div class="error-msg" id="err-email">Please enter a valid email address.</div>
+        <label>MBH Fitness Sales Contact <span class="req">*</span></label>
+        <select id="salesContact" onchange="handleSalesChange(this)">
+          <option value="">— Select Sales Contact —</option>
+          <option>Jessica</option>
+          <option>Carrier</option>
+          <option>Jason</option>
+          <option>Gaby</option>
+          <option>Peter</option>
+          <option>Donna</option>
+          <option>Henry</option>
+          <option>Richard</option>
+          <option>Cecile</option>
+          <option>Alex</option>
+          <option>Shay</option>
+          <option>Carrie</option>
+          <option>Kevin</option>
+          <option>Ally</option>
+          <option>Layton</option>
+          <option>Tom</option>
+          <option>Tony</option>
+          <option>Creed</option>
+          <option value="Other">Other (Manual Input)</option>
+        </select>
+        <div class="error-msg" id="err-salesContact">Please select a sales contact.</div>
       </div>
-      <div class="field">
-        <label>Phone Number</label>
-        <input type="tel" id="phone" placeholder="+1 234 567 8900" />
+      <!-- Other sales input (hidden by default) -->
+      <div class="field" id="salesOtherField" style="display:none;">
+        <label>Please specify sales contact <span class="req">*</span></label>
+        <input type="text" id="salesOther" placeholder="Enter sales contact name" />
+        <div class="error-msg" id="err-salesOther">Please enter the sales contact name.</div>
       </div>
     </div>
 
     <div class="form-grid">
-      <div class="field">
-        <label>Sales Contact Name <span class="req">*</span></label>
-        <input type="text" id="salesContact" placeholder="Name of your MBH Fitness sales contact" />
-        <div class="error-msg" id="err-salesContact">Please enter the sales contact name.</div>
-      </div>
       <div class="field">
         <label>Product Category <span class="req">*</span></label>
         <select id="productCategory">
@@ -729,6 +747,18 @@
     hide('err-countryOther');
   }
 
+  function handleSalesChange(sel) {
+    const otherField = document.getElementById('salesOtherField');
+    if (sel.value === 'Other') {
+      otherField.style.display = 'flex';
+    } else {
+      otherField.style.display = 'none';
+      document.getElementById('salesOther').value = '';
+    }
+    hide('err-salesContact');
+    hide('err-salesOther');
+  }
+
   function selectDay(card) {
     document.querySelectorAll('.day-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
@@ -772,7 +802,6 @@
     const fields = [
       { id: 'fullName',        errId: 'err-fullName' },
       { id: 'company',         errId: 'err-company' },
-      { id: 'email',           errId: 'err-email' },
       { id: 'salesContact',    errId: 'err-salesContact' },
       { id: 'country',         errId: 'err-country' },
       { id: 'productCategory', errId: 'err-productCategory' },
@@ -783,6 +812,13 @@
       if (!val) { show(f.errId); ok = false; }
       else hide(f.errId);
     });
+
+    // If "Other" sales, require manual input
+    if (document.getElementById('salesContact').value === 'Other') {
+      const otherVal = document.getElementById('salesOther').value.trim();
+      if (!otherVal) { show('err-salesOther'); ok = false; }
+      else hide('err-salesOther');
+    }
 
     // If "Other" country, require manual input
     if (document.getElementById('country').value === 'Other') {
@@ -814,6 +850,10 @@
     btn.disabled = true;
     btn.querySelector('span').textContent = 'Submitting…';
 
+    const salesVal = document.getElementById('salesContact').value === 'Other'
+      ? document.getElementById('salesOther').value.trim()
+      : document.getElementById('salesContact').value;
+
     const countryVal = document.getElementById('country').value === 'Other'
       ? document.getElementById('countryOther').value.trim()
       : document.getElementById('country').value;
@@ -821,9 +861,7 @@
     const payload = {
       fullName:        document.getElementById('fullName').value.trim(),
       company:         document.getElementById('company').value.trim(),
-      email:           document.getElementById('email').value.trim(),
-      phone:           document.getElementById('phone').value.trim(),
-      salesContact:    document.getElementById('salesContact').value.trim(),
+      salesContact:    salesVal,
       country:         countryVal,
       productCategory: document.getElementById('productCategory').value,
       meetingDate:     DAY_LABELS[selectedDate],
