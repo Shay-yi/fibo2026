@@ -95,6 +95,8 @@
     .divider { height: 1px; background: var(--border); margin: 40px 0; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     footer { position: relative; z-index: 1; text-align: center; padding: 24px; border-top: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--gray-mid); }
+    .sales-login-btn { position: absolute; top: 24px; right: 24px; z-index: 2; background: transparent; border: 1px solid var(--border); color: var(--gray-light); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; padding: 10px 16px; cursor: pointer; text-transform: uppercase; text-decoration: none; }
+    .sales-login-btn:hover { border-color: var(--gold); color: var(--gold); }
   </style>
 </head>
 <body>
@@ -103,6 +105,7 @@
   <h1 class="header-title">2026 FIBO<span>Invitation</span>Information Form</h1>
   <p class="header-sub">Register your meeting appointment with <strong style="color:var(--gold);font-weight:500;">MBH Fitness</strong> at FIBO 2026</p>
   <div class="header-meta"><span>Cologne, Germany</span><span>April 16 – 19, 2026</span><span>Booth 6A59</span></div>
+  <a class="sales-login-btn" href="./view/index.html">Sales Login</a>
 </header>
 
 <div class="event-selector">
@@ -128,18 +131,11 @@
           <select id="fiboSalesContact" onchange="handleSalesChange(this)">
             <option value="">— Select Sales Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
-            <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patric</option><option>Zack</option><option>Owen</option><option>Kat</option>
+            <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-fiboSalesContact">Please select a sales contact.</div>
-        </div>
-        <div class="field" id="fiboSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="fiboSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-fiboSalesOther">Please enter the sales contact name.</div></div>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Product Category <span class="req">*</span></label>
-          <select id="fiboProductCategory"><option value="">— Select Category —</option><option>Strength Equipment</option><option>Cardio Equipment</option><option>Functional Training</option><option>Recovery & Wellness</option><option>Nutrition & Supplements</option><option>Wearables & Technology</option><option>Apparel & Accessories</option><option>Gym Flooring & Facilities</option><option>Software & Management</option><option>Other</option></select>
-          <div class="error-msg" id="err-fiboProductCategory">Please select a product category.</div>
+          <div class="field" id="fiboSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="fiboSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-fiboSalesOther">Please enter the sales contact name.</div></div>
         </div>
         <div class="field">
           <label>Country / Region <span class="req">*</span></label>
@@ -152,6 +148,25 @@
             <option value="Other">Other</option>
           </select>
           <div class="error-msg" id="err-fiboCountry">Please select your country.</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Interested Category <span class="req">*</span></label>
+          <select id="fiboProductCategory">
+            <option value="">— Select Categories —</option>
+            <option>Strength Equipment</option>
+            <option>Cardio Equipment</option>
+            <option>Functional Training</option>
+            <option>Recovery & Wellness</option>
+            <option>Nutrition & Supplements</option>
+            <option>Wearables & Technology</option>
+            <option>Apparel & Accessories</option>
+            <option>Gym Flooring & Facilities</option>
+            <option>Software & Management</option>
+            <option>Other</option>
+          </select>
+          <div class="error-msg" id="err-fiboProductCategory">Please select a product category.</div>
         </div>
       </div>
       <div class="field" id="fiboCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="fiboCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-fiboCountryOther">Please enter your country.</div></div>
@@ -215,7 +230,7 @@
           <select id="ashSalesContact" onchange="handleAshSalesChange(this)">
             <option value="">— Select Sales Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
-            <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patric</option><option>Zack</option><option>Owen</option><option>Kat</option>
+            <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-ashSalesContact">Please select a sales contact.</div>
@@ -263,7 +278,7 @@
           <select id="boothSalesContact" onchange="handleBoothSalesChange(this)">
             <option value="">— Select Sales Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
-            <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patric</option><option>Zack</option><option>Owen</option><option>Kat</option>
+            <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-boothSalesContact">Please select a sales contact.</div>
@@ -286,15 +301,94 @@
 <footer>2026 FIBO — Cologne, Germany — April 16–19 ◆ MBH Fitness</footer>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzrNPI-5asJMPHD8gpG5wtQsNG8luxPKNLI4RwDZUAp0Ja88leMFIh1sP-mkQyxL_GQ7A/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH9YjKQMzXeZsYGbDbF3CtTpYBvAjSWhhlj_mxCoGm_ML3jPkBpS4BsyK2BebZI4gd/exec';
 const TIME_SLOTS = ['09:00 – 10:00','10:00 – 11:00','11:00 – 12:00','12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00','17:00 – 18:00'];
 const DAY_LABELS = {'2026-04-16':'Thursday, April 16','2026-04-17':'Friday, April 17','2026-04-18':'Saturday, April 18','2026-04-19':'Sunday, April 19'};
 let selectedDate = '', selectedSlot = '', currentEvent = '';
+
+// Keep event selection after refresh
+const EVENT_SELECT_KEY = 'fibo_current_event_v1';
+
+function syncFiboNameCompanyToOthers_() {
+  const fiboFullNameEl = document.getElementById('fiboFullName');
+  const fiboCompanyEl = document.getElementById('fiboCompany');
+  if (!fiboFullNameEl || !fiboCompanyEl) return;
+
+  const fullName = fiboFullNameEl.value.trim();
+  const company = fiboCompanyEl.value.trim();
+
+  // Only set when FIBO has values; keep user-entered values in other tabs if FIBO is empty.
+  if (fullName) {
+    const ashFullNameEl = document.getElementById('ashFullName');
+    const boothFullNameEl = document.getElementById('boothFullName');
+    if (ashFullNameEl) ashFullNameEl.value = fullName;
+    if (boothFullNameEl) boothFullNameEl.value = fullName;
+  }
+
+  if (company) {
+    const ashCompanyEl = document.getElementById('ashCompany');
+    const boothCompanyEl = document.getElementById('boothCompany');
+    if (ashCompanyEl) ashCompanyEl.value = company;
+    if (boothCompanyEl) boothCompanyEl.value = company;
+  }
+}
+
+// When typing in FIBO, keep ASH/BOOTH default values in sync.
+const fiboFullNameEl = document.getElementById('fiboFullName');
+const fiboCompanyEl = document.getElementById('fiboCompany');
+if (fiboFullNameEl) fiboFullNameEl.addEventListener('input', syncFiboNameCompanyToOthers_);
+if (fiboCompanyEl) fiboCompanyEl.addEventListener('input', syncFiboNameCompanyToOthers_);
+
+function syncFiboSelectionsToOthers_() {
+  // Sales contact
+  const fiboSalesSelect = document.getElementById('fiboSalesContact');
+  const fiboSalesOther = document.getElementById('fiboSalesOther');
+  const ashSalesSelect = document.getElementById('ashSalesContact');
+  const ashSalesOther = document.getElementById('ashSalesOther');
+  const boothSalesSelect = document.getElementById('boothSalesContact');
+  const boothSalesOther = document.getElementById('boothSalesOther');
+
+  // Country
+  const fiboCountrySelect = document.getElementById('fiboCountry');
+  const fiboCountryOther = document.getElementById('fiboCountryOther');
+  const ashCountrySelect = document.getElementById('ashCountry');
+  const ashCountryOther = document.getElementById('ashCountryOther');
+  const boothCountrySelect = document.getElementById('boothCountry');
+  const boothCountryOther = document.getElementById('boothCountryOther');
+
+  if (!fiboSalesSelect || !ashSalesSelect || !boothSalesSelect) return;
+  if (!fiboCountrySelect || !ashCountrySelect || !boothCountrySelect) return;
+
+  const salesVal = fiboSalesSelect.value;
+  const salesOtherVal = (salesVal === 'Other' && fiboSalesOther) ? fiboSalesOther.value.trim() : '';
+
+  ashSalesSelect.value = salesVal;
+  handleAshSalesChange(ashSalesSelect);
+  if (salesVal === 'Other' && ashSalesOther) ashSalesOther.value = salesOtherVal;
+
+  boothSalesSelect.value = salesVal;
+  handleBoothSalesChange(boothSalesSelect);
+  if (salesVal === 'Other' && boothSalesOther) boothSalesOther.value = salesOtherVal;
+
+  const countryVal = fiboCountrySelect.value;
+  const countryOtherVal = (countryVal === 'Other' && fiboCountryOther) ? fiboCountryOther.value.trim() : '';
+
+  ashCountrySelect.value = countryVal;
+  handleAshCountryChange(ashCountrySelect);
+  if (countryVal === 'Other' && ashCountryOther) ashCountryOther.value = countryOtherVal;
+
+  boothCountrySelect.value = countryVal;
+  handleBoothCountryChange(boothCountrySelect);
+  if (countryVal === 'Other' && boothCountryOther) boothCountryOther.value = countryOtherVal;
+}
 
 function selectEvent(card) {
   document.querySelectorAll('.event-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
   currentEvent = card.dataset.event;
+
+  try { localStorage.setItem(EVENT_SELECT_KEY, currentEvent); } catch (err) {}
+
   document.getElementById('formWrapper').style.display = 'block';
   document.getElementById('fiboForm').style.display = 'none';
   document.getElementById('ashForm').style.display = 'none';
@@ -303,7 +397,10 @@ function selectEvent(card) {
   if (currentEvent === 'fibo') document.getElementById('fiboForm').style.display = 'block';
   if (currentEvent === 'ash') document.getElementById('ashForm').style.display = 'block';
   if (currentEvent === 'booth') document.getElementById('boothForm').style.display = 'block';
-  window.scrollTo({ top: document.getElementById('formWrapper').offsetTop - 40, behavior: 'smooth' });
+
+  // If user already filled FIBO Full Name / Company, default them into ASH & BOOTH.
+  if (currentEvent !== 'fibo') syncFiboNameCompanyToOthers_();
+  if (currentEvent !== 'fibo') syncFiboSelectionsToOthers_();
 }
 
 function handleSalesChange(sel) {
@@ -371,8 +468,17 @@ function hide(id) { document.getElementById(id).classList.remove('visible'); }
 
 function validateFibo() {
   let ok = true;
-  const fields = [{ id: 'fiboFullName', errId: 'err-fiboFullName' }, { id: 'fiboCompany', errId: 'err-fiboCompany' }, { id: 'fiboSalesContact', errId: 'err-fiboSalesContact' }, { id: 'fiboProductCategory', errId: 'err-fiboProductCategory' }, { id: 'fiboCountry', errId: 'err-fiboCountry' }];
+  // 基础字段
+  const fields = [
+    { id: 'fiboFullName', errId: 'err-fiboFullName' },
+    { id: 'fiboCompany', errId: 'err-fiboCompany' },
+    { id: 'fiboSalesContact', errId: 'err-fiboSalesContact' },
+    { id: 'fiboCountry', errId: 'err-fiboCountry' }
+  ];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
+
+  const pcVal = document.getElementById('fiboProductCategory').value.trim();
+  if (!pcVal) { show('err-fiboProductCategory'); ok = false; } else hide('err-fiboProductCategory');
   if (document.getElementById('fiboSalesContact').value === 'Other') { const otherVal = document.getElementById('fiboSalesOther').value.trim(); if (!otherVal) { show('err-fiboSalesOther'); ok = false; } else hide('err-fiboSalesOther'); }
   if (document.getElementById('fiboCountry').value === 'Other') { const otherVal = document.getElementById('fiboCountryOther').value.trim(); if (!otherVal) { show('err-fiboCountryOther'); ok = false; } else hide('err-fiboCountryOther'); }
   if (!selectedDate) { show('err-meetingDate'); ok = false; } else hide('err-meetingDate');
@@ -426,7 +532,9 @@ async function submitFibo() {
   
   const salesVal = document.getElementById('fiboSalesContact').value === 'Other' ? document.getElementById('fiboSalesOther').value.trim() : document.getElementById('fiboSalesContact').value;
   const countryVal = document.getElementById('fiboCountry').value === 'Other' ? document.getElementById('fiboCountryOther').value.trim() : document.getElementById('fiboCountry').value;
-  const payload = { eventType: 'FIBO', fullName: document.getElementById('fiboFullName').value.trim(), company: document.getElementById('fiboCompany').value.trim(), salesContact: salesVal, productCategory: document.getElementById('fiboProductCategory').value, country: countryVal, meetingDate: DAY_LABELS[selectedDate], timeSlot: selectedSlot, notes: document.getElementById('fiboNotes').value.trim() };
+  const productCategoryVal = document.getElementById('fiboProductCategory').value.trim();
+
+  const payload = { eventType: 'FIBO', fullName: document.getElementById('fiboFullName').value.trim(), company: document.getElementById('fiboCompany').value.trim(), salesContact: salesVal, productCategory: productCategoryVal, country: countryVal, meetingDate: DAY_LABELS[selectedDate], timeSlot: selectedSlot, notes: document.getElementById('fiboNotes').value.trim() };
   
   // Create a hidden iframe for submission
   const iframe = document.createElement('iframe');
@@ -535,6 +643,16 @@ function showError() {
   errEl.textContent = 'Submission failed. Please try again or contact us directly.';
   errEl.classList.add('visible');
 }
+
+// Restore last selected event after refresh
+window.addEventListener('load', () => {
+  try {
+    const ev = localStorage.getItem(EVENT_SELECT_KEY);
+    if (!ev) return;
+    const card = document.querySelector(`.event-card[data-event="${ev}"]`);
+    if (card) selectEvent(card);
+  } catch (err) {}
+});
 </script>
 </body>
 </html>

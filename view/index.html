@@ -80,7 +80,7 @@
           <option>Kelly</option>
           <option>Josie</option>
           <option>Vera</option>
-          <option>Patric</option>
+          <option>Patrick</option>
           <option>Zack</option>
           <option>Owen</option>
           <option>Kat</option>
@@ -92,6 +92,21 @@
     </div>
     <button class="btn-submit" id="loginBtn" onclick="login()">LOGIN</button>
     <div class="error-msg" id="loginError">Invalid credentials. Please try again.</div>
+  </div>
+
+  <!-- CHANGE PASSWORD -->
+  <div class="login-box" id="changePasswordBox" style="display:none;">
+    <div class="login-title">CHANGE PASSWORD</div>
+    <div class="error-msg" id="changePasswordError">Password update failed. Please try again.</div>
+    <div class="field">
+      <label>New Password</label>
+      <input type="password" id="newPassword" placeholder="Enter new password" />
+    </div>
+    <div class="field">
+      <label>Confirm Password</label>
+      <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+    </div>
+    <button class="btn-submit" id="changePasswordBtn" onclick="changePassword()">UPDATE PASSWORD</button>
   </div>
 
   <!-- DASHBOARD -->
@@ -136,9 +151,74 @@
 </main>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzrNPI-5asJMPHD8gpG5wtQsNG8luxPKNLI4RwDZUAp0Ja88leMFIh1sP-mkQyxL_GQ7A/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH9YjKQMzXeZsYGbDbF3CtTpYBvAjSWhhlj_mxCoGm_ML3jPkBpS4BsyK2BebZI4gd/exec';
 
 let sheetUrlCache = '';
+let pendingLoginName = '';
+let pendingLoginPassword = '';
+let pendingLoginData = null;
+
+// Keep-login: use localStorage (persist across refresh + browser reopen)
+const SESSION_SALES_NAME_KEY = 'fibo_sales_name_v1';
+const SESSION_SALES_PASSWORD_KEY = 'fibo_sales_password_v1';
+const SESSION_PW_CHANGED_KEY_PREFIX = 'fibo_pw_changed_v1_';
+const DASHBOARD_CACHE_KEY = 'fibo_dashboard_cache_v1';
+
+function saveLoginSession_(name, password) {
+  localStorage.setItem(SESSION_SALES_NAME_KEY, name);
+  localStorage.setItem(SESSION_SALES_PASSWORD_KEY, password);
+}
+
+function clearLoginSession_() {
+  localStorage.removeItem(SESSION_SALES_NAME_KEY);
+  localStorage.removeItem(SESSION_SALES_PASSWORD_KEY);
+}
+
+function getPwChanged_(name) {
+  return localStorage.getItem(SESSION_PW_CHANGED_KEY_PREFIX + name) === '1';
+}
+
+function setPwChanged_(name, changed) {
+  if (changed) localStorage.setItem(SESSION_PW_CHANGED_KEY_PREFIX + name, '1');
+  else localStorage.removeItem(SESSION_PW_CHANGED_KEY_PREFIX + name);
+}
+
+function restoreDashboardCache_() {
+  try {
+    const raw = localStorage.getItem(DASHBOARD_CACHE_KEY);
+    if (!raw) return false;
+    const cached = JSON.parse(raw);
+    if (!cached || !cached.data || !cached.name) return false;
+    // 24 hours cache
+    if (cached.ts && (Date.now() - cached.ts) > 24 * 60 * 60 * 1000) return false;
+    // restore sheet url button too (if cached)
+    if (cached.sheetUrl) sheetUrlCache = cached.sheetUrl;
+    const sheetBtn = document.getElementById('sheetOpenBtn');
+    if (sheetBtn && sheetUrlCache) sheetBtn.style.display = 'inline-block';
+    showDashboard(cached.name, cached.data);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function autoLoginFromSession_() {
+  const name = localStorage.getItem(SESSION_SALES_NAME_KEY);
+  const password = localStorage.getItem(SESSION_SALES_PASSWORD_KEY);
+  if (!name || !password) return;
+
+  // 保底：先渲染上次的 dashboard，避免刷新时跳回登录界面
+  if (restoreDashboardCache_()) return;
+
+  const salesNameEl = document.getElementById('salesName');
+  const salesPasswordEl = document.getElementById('salesPassword');
+  if (!salesNameEl || !salesPasswordEl) return;
+
+  // Fill inputs and call normal login()
+  salesNameEl.value = name;
+  salesPasswordEl.value = password;
+  login();
+}
 
 function login() {
   const name = document.getElementById('salesName').value;
@@ -167,7 +247,17 @@ function login() {
           sheetUrlCache = data.sheetUrl;
           document.getElementById('sheetOpenBtn').style.display = 'inline-block';
         }
-        showDashboard(name, data.data);
+        // Login 成功后就保存登录信息：即使 mustChangePassword=true，也避免刷新后重新要求输入
+        saveLoginSession_(name, password);
+        if (data.mustChangePassword) {
+          // 仍需改密：刷新时先走 login 流程，让用户完成改密
+          setPwChanged_(name, false);
+          showChangePasswordBox(name, password, data.data);
+        } else {
+          // 已完成改密：刷新时直接 loadData 进入 dashboard
+          setPwChanged_(name, true);
+          showDashboard(name, data.data);
+        }
       } else {
         sheetUrlCache = '';
         if (document.getElementById('sheetOpenBtn')) {
@@ -187,7 +277,110 @@ function login() {
     });
 }
 
+function showChangePasswordBox(name, oldPassword, dashboardData) {
+  pendingLoginName = name;
+  pendingLoginPassword = oldPassword;
+  pendingLoginData = dashboardData || {};
+
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('changePasswordBox').style.display = 'block';
+  document.getElementById('dashboard').classList.remove('visible');
+
+  document.getElementById('changePasswordError').classList.remove('visible');
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmPassword').value = '';
+}
+
+function changePassword() {
+  const newPassword = document.getElementById('newPassword').value.trim();
+  const confirmPassword = document.getElementById('confirmPassword').value.trim();
+  const errorEl = document.getElementById('changePasswordError');
+  const btn = document.getElementById('changePasswordBtn');
+
+  errorEl.classList.remove('visible');
+
+  if (!newPassword || !confirmPassword) {
+    errorEl.textContent = 'Please enter and confirm your new password.';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    errorEl.textContent = 'New password must be at least 6 characters.';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    errorEl.textContent = 'The two passwords do not match.';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'UPDATING...';
+
+  const formBody = 'data=' + encodeURIComponent(JSON.stringify({
+    action: 'changePassword',
+    salesName: pendingLoginName,
+    oldPassword: pendingLoginPassword,
+    newPassword: newPassword
+  }));
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body: formBody
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) {
+        errorEl.textContent = res.message || 'Password update failed.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      document.getElementById('changePasswordBox').style.display = 'none';
+      pendingLoginPassword = newPassword;
+      // 密码更新后也更新本地登录缓存，保证刷新后无需再次输入
+      saveLoginSession_(pendingLoginName, newPassword);
+      setPwChanged_(pendingLoginName, true);
+
+      // 重新用“新密码”登录一次，确保拉到最新的客户数据
+      fetch(`${SCRIPT_URL}?action=login&sales=${encodeURIComponent(pendingLoginName)}&password=${encodeURIComponent(newPassword)}`)
+        .then(r => r.json())
+        .then(loginData => {
+          if (!loginData.success) {
+            errorEl.textContent = loginData.message || 'Login after password update failed.';
+            errorEl.classList.add('visible');
+            return;
+          }
+
+          if (loginData.sheetUrl) {
+            sheetUrlCache = loginData.sheetUrl;
+            const sheetBtn = document.getElementById('sheetOpenBtn');
+            if (sheetBtn) sheetBtn.style.display = 'inline-block';
+          }
+
+          showDashboard(pendingLoginName, loginData.data || { fibo: [], ash: [], booth: [] });
+        })
+        .catch(() => {
+          errorEl.textContent = 'Connection error when reloading dashboard.';
+          errorEl.classList.add('visible');
+        });
+    })
+    .catch(() => {
+      errorEl.textContent = 'Connection error. Please try again.';
+      errorEl.classList.add('visible');
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = 'UPDATE PASSWORD';
+    });
+}
+
 function showDashboard(name, data) {
+  document.getElementById('changePasswordBox').style.display = 'none';
   document.getElementById('loginBox').style.display = 'none';
   document.getElementById('dashboard').classList.add('visible');
   document.getElementById('salesDisplay').textContent = name;
@@ -233,6 +426,16 @@ function showDashboard(name, data) {
     document.getElementById('boothEmpty').style.display = 'block';
     document.getElementById('boothCount').textContent = '0';
   }
+
+  // Cache dashboard for refresh stability
+  try {
+    localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
+      name: name,
+      data: data || { fibo: [], ash: [], booth: [] },
+      sheetUrl: sheetUrlCache,
+      ts: Date.now()
+    }));
+  } catch (err) {}
 }
 
 function switchTab(tab) {
@@ -243,6 +446,20 @@ function switchTab(tab) {
 }
 
 function logout() {
+  // True logout: clear saved login + cached dashboard
+  clearLoginSession_();
+  try { localStorage.removeItem(DASHBOARD_CACHE_KEY); } catch (err) {}
+
+  // Remove all "password changed" flags
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(SESSION_PW_CHANGED_KEY_PREFIX)) {
+        localStorage.removeItem(k);
+      }
+    }
+  } catch (err) {}
+
   location.reload();
 }
 
@@ -254,6 +471,16 @@ function openSheet() {
 // Enter key login
 document.getElementById('salesPassword').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') login();
+});
+
+// Enter key change password
+document.getElementById('confirmPassword').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') changePassword();
+});
+
+// Auto login on refresh (if the user already logged in)
+window.addEventListener('load', () => {
+  autoLoginFromSession_();
 });
 </script>
 </body>
