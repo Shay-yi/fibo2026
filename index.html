@@ -127,7 +127,7 @@
           <label>MBH Fitness Sales Contact <span class="req">*</span></label>
           <select id="fiboSalesContact" onchange="handleSalesChange(this)">
             <option value="">— Select Sales Contact —</option>
-            <option>Jessica</option><option>Jason</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option><option>Carrie</option><option>Kevin</option><option>Ally</option><option>Layton</option><option>Tom</option><option>Tony</option><option>Creed</option>
+            <option>Jessica</option><option>Jason</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-fiboSalesContact">Please select a sales contact.</div>
@@ -192,16 +192,18 @@
       <div class="form-grid">
         <div class="field">
           <label>Country / Region <span class="req">*</span></label>
-          <select id="ashCountry">
+          <select id="ashCountry" onchange="handleAshCountryChange(this)">
             <option value="">— Select Country —</option>
             <optgroup label="Europe"><option>Albania</option><option>Andorra</option><option>Austria</option><option>Belarus</option><option>Belgium</option><option>Bosnia and Herzegovina</option><option>Bulgaria</option><option>Croatia</option><option>Cyprus</option><option>Czech Republic</option><option>Denmark</option><option>Estonia</option><option>Finland</option><option>France</option><option>Germany</option><option>Greece</option><option>Hungary</option><option>Iceland</option><option>Ireland</option><option>Italy</option><option>Kosovo</option><option>Latvia</option><option>Liechtenstein</option><option>Lithuania</option><option>Luxembourg</option><option>Malta</option><option>Moldova</option><option>Monaco</option><option>Montenegro</option><option>Netherlands</option><option>North Macedonia</option><option>Norway</option><option>Poland</option><option>Portugal</option><option>Romania</option><option>Russia</option><option>San Marino</option><option>Serbia</option><option>Slovakia</option><option>Slovenia</option><option>Spain</option><option>Sweden</option><option>Switzerland</option><option>Turkey</option><option>Ukraine</option><option>United Kingdom</option></optgroup>
             <optgroup label="Asia"><option>China</option><option>India</option><option>Japan</option><option>South Korea</option><option>UAE</option><option>Saudi Arabia</option><option>Singapore</option><option>Thailand</option><option>Vietnam</option><option>Indonesia</option><option>Malaysia</option></optgroup>
             <optgroup label="Americas"><option>United States</option><option>Canada</option><option>Brazil</option><option>Mexico</option><option>Argentina</option><option>Colombia</option></optgroup>
             <optgroup label="Other Regions"><option>Australia</option><option>New Zealand</option><option>South Africa</option><option>Egypt</option><option>Nigeria</option></optgroup>
+            <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-ashCountry">Please select your country.</div>
         </div>
       </div>
+      <div class="field" id="ashCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="ashCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-ashCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="ashSubmitBtn" onclick="submitAsh()"><span>Register for ASH Party</span></button></div>
     </div>
 
@@ -220,16 +222,18 @@
       <div class="form-grid">
         <div class="field">
           <label>Country / Region <span class="req">*</span></label>
-          <select id="boothCountry">
+          <select id="boothCountry" onchange="handleBoothCountryChange(this)">
             <option value="">— Select Country —</option>
             <optgroup label="Europe"><option>Albania</option><option>Andorra</option><option>Austria</option><option>Belarus</option><option>Belgium</option><option>Bosnia and Herzegovina</option><option>Bulgaria</option><option>Croatia</option><option>Cyprus</option><option>Czech Republic</option><option>Denmark</option><option>Estonia</option><option>Finland</option><option>France</option><option>Germany</option><option>Greece</option><option>Hungary</option><option>Iceland</option><option>Ireland</option><option>Italy</option><option>Kosovo</option><option>Latvia</option><option>Liechtenstein</option><option>Lithuania</option><option>Luxembourg</option><option>Malta</option><option>Moldova</option><option>Monaco</option><option>Montenegro</option><option>Netherlands</option><option>North Macedonia</option><option>Norway</option><option>Poland</option><option>Portugal</option><option>Romania</option><option>Russia</option><option>San Marino</option><option>Serbia</option><option>Slovakia</option><option>Slovenia</option><option>Spain</option><option>Sweden</option><option>Switzerland</option><option>Turkey</option><option>Ukraine</option><option>United Kingdom</option></optgroup>
             <optgroup label="Asia"><option>China</option><option>India</option><option>Japan</option><option>South Korea</option><option>UAE</option><option>Saudi Arabia</option><option>Singapore</option><option>Thailand</option><option>Vietnam</option><option>Indonesia</option><option>Malaysia</option></optgroup>
             <optgroup label="Americas"><option>United States</option><option>Canada</option><option>Brazil</option><option>Mexico</option><option>Argentina</option><option>Colombia</option></optgroup>
             <optgroup label="Other Regions"><option>Australia</option><option>New Zealand</option><option>South Africa</option><option>Egypt</option><option>Nigeria</option></optgroup>
+            <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-boothCountry">Please select your country.</div>
         </div>
       </div>
+      <div class="field" id="boothCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="boothCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-boothCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="boothSubmitBtn" onclick="submitBooth()"><span>Register for Booth Party</span></button></div>
     </div>
 
@@ -277,6 +281,18 @@ function handleCountryChange(sel) {
   hide('err-fiboCountry'); hide('err-fiboCountryOther');
 }
 
+function handleAshCountryChange(sel) {
+  const otherField = document.getElementById('ashCountryOtherField');
+  if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('ashCountryOther').value = ''; }
+  hide('err-ashCountry'); hide('err-ashCountryOther');
+}
+
+function handleBoothCountryChange(sel) {
+  const otherField = document.getElementById('boothCountryOtherField');
+  if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('boothCountryOther').value = ''; }
+  hide('err-boothCountry'); hide('err-boothCountryOther');
+}
+
 function selectDay(card) {
   document.querySelectorAll('.day-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
@@ -317,6 +333,7 @@ function validateAsh() {
   let ok = true;
   const fields = [{ id: 'ashFullName', errId: 'err-ashFullName' }, { id: 'ashCompany', errId: 'err-ashCompany' }, { id: 'ashCountry', errId: 'err-ashCountry' }];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
+  if (document.getElementById('ashCountry').value === 'Other') { const otherVal = document.getElementById('ashCountryOther').value.trim(); if (!otherVal) { show('err-ashCountryOther'); ok = false; } else hide('err-ashCountryOther'); }
   return ok;
 }
 
@@ -324,6 +341,7 @@ function validateBooth() {
   let ok = true;
   const fields = [{ id: 'boothFullName', errId: 'err-boothFullName' }, { id: 'boothCompany', errId: 'err-boothCompany' }, { id: 'boothCountry', errId: 'err-boothCountry' }];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
+  if (document.getElementById('boothCountry').value === 'Other') { const otherVal = document.getElementById('boothCountryOther').value.trim(); if (!otherVal) { show('err-boothCountryOther'); ok = false; } else hide('err-boothCountryOther'); }
   return ok;
 }
 
@@ -343,7 +361,8 @@ async function submitAsh() {
   if (!validateAsh()) return;
   const btn = document.getElementById('ashSubmitBtn');
   btn.disabled = true; btn.querySelector('span').textContent = 'Submitting...';
-  const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), country: document.getElementById('ashCountry').value };
+  const countryVal = document.getElementById('ashCountry').value === 'Other' ? document.getElementById('ashCountryOther').value.trim() : document.getElementById('ashCountry').value;
+  const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), country: countryVal };
   try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); showSuccess('Thank you for registering for the ASH Party. We look forward to seeing you there!'); } catch (err) { showError(); btn.disabled = false; btn.querySelector('span').textContent = 'Register for ASH Party'; }
 }
 
@@ -352,7 +371,8 @@ async function submitBooth() {
   if (!validateBooth()) return;
   const btn = document.getElementById('boothSubmitBtn');
   btn.disabled = true; btn.querySelector('span').textContent = 'Submitting...';
-  const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), country: document.getElementById('boothCountry').value };
+  const countryVal = document.getElementById('boothCountry').value === 'Other' ? document.getElementById('boothCountryOther').value.trim() : document.getElementById('boothCountry').value;
+  const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), country: countryVal };
   try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); showSuccess('Thank you for registering for the Booth Party. Please collect your wristband on-site.'); } catch (err) { showError(); btn.disabled = false; btn.querySelector('span').textContent = 'Register for Booth Party'; }
 }
 
