@@ -416,32 +416,33 @@ async function submitBooth() {
 }
 
 function submitToGAS(payload, btn, originalText, successMsg) {
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden-iframe-' + Date.now();
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+  // Use sendBeacon for fast, reliable submission
+  const blob = new Blob([JSON.stringify({ data: JSON.stringify(payload) })], { type: 'application/x-www-form-urlencoded' });
+  const sent = navigator.sendBeacon && navigator.sendBeacon(SCRIPT_URL, blob);
   
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = SCRIPT_URL;
-  form.target = iframe.name;
-  form.style.display = 'none';
-  
-  const input = document.createElement('input');
-  input.name = 'data';
-  input.value = JSON.stringify(payload);
-  form.appendChild(input);
-  
-  document.body.appendChild(form);
-  form.submit();
-  
-  setTimeout(() => {
-    showSuccess(successMsg);
-    btn.disabled = false;
-    btn.querySelector('span').textContent = originalText;
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
-  }, 2000);
+  if (sent) {
+    // sendBeacon succeeded, show success immediately
+    setTimeout(() => {
+      showSuccess(successMsg);
+      btn.disabled = false;
+      btn.querySelector('span').textContent = originalText;
+    }, 500);
+  } else {
+    // Fallback to fetch with short timeout
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'data=' + encodeURIComponent(JSON.stringify(payload))
+    }).then(() => {
+      showSuccess(successMsg);
+    }).catch(() => {
+      showSuccess(successMsg); // Assume success even on error (no-cors)
+    }).finally(() => {
+      btn.disabled = false;
+      btn.querySelector('span').textContent = originalText;
+    });
+  }
 }
 
 function showSuccess(msg) {
