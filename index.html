@@ -127,7 +127,7 @@
           <label>MBH Fitness Sales Contact <span class="req">*</span></label>
           <select id="fiboSalesContact" onchange="handleSalesChange(this)">
             <option value="">— Select Sales Contact —</option>
-            <option>Jessica</option><option>Jason</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
+            <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-fiboSalesContact">Please select a sales contact.</div>
@@ -208,6 +208,18 @@
           <div class="error-msg" id="err-ashAttendees">Please enter number of attendees.</div>
         </div>
       </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>MBH Fitness Sales Contact <span class="req">*</span></label>
+          <select id="ashSalesContact" onchange="handleAshSalesChange(this)">
+            <option value="">— Select Sales Contact —</option>
+            <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
+            <option value="Other">Other (Manual Input)</option>
+          </select>
+          <div class="error-msg" id="err-ashSalesContact">Please select a sales contact.</div>
+        </div>
+      </div>
+      <div class="field" id="ashSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="ashSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-ashSalesOther">Please enter the sales contact name.</div></div>
       <div class="field" id="ashCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="ashCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-ashCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="ashSubmitBtn" onclick="submitAsh()"><span>Register for ASH Party</span></button></div>
     </div>
@@ -243,6 +255,18 @@
           <div class="error-msg" id="err-boothAttendees">Please enter number of attendees.</div>
         </div>
       </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>MBH Fitness Sales Contact <span class="req">*</span></label>
+          <select id="boothSalesContact" onchange="handleBoothSalesChange(this)">
+            <option value="">— Select Sales Contact —</option>
+            <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
+            <option value="Other">Other (Manual Input)</option>
+          </select>
+          <div class="error-msg" id="err-boothSalesContact">Please select a sales contact.</div>
+        </div>
+      </div>
+      <div class="field" id="boothSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="boothSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-boothSalesOther">Please enter the sales contact name.</div></div>
       <div class="field" id="boothCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="boothCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-boothCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="boothSubmitBtn" onclick="submitBooth()"><span>Register for Booth Party</span></button></div>
     </div>
@@ -259,7 +283,7 @@
 <footer>2026 FIBO — Cologne, Germany — April 16–19 ◆ MBH Fitness</footer>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvzvAwpt3Q5oiY3HjwgufB5nRQTu9BGOrMVV37QuSn_m2FYGEHB_76BGil7U7rWgztFg/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOSkh46ihjz6A_VvZ0FJzkxWLWdTdqBP9qlC1SjSAByar-PcQsH_QXY83HsRBzTcJuPQ/exec';
 const TIME_SLOTS = ['09:00 – 10:00','10:00 – 11:00','11:00 – 12:00','12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00','17:00 – 18:00'];
 const DAY_LABELS = {'2026-04-16':'Thursday, April 16','2026-04-17':'Friday, April 17','2026-04-18':'Saturday, April 18','2026-04-19':'Sunday, April 19'};
 let selectedDate = '', selectedSlot = '', currentEvent = '';
@@ -285,6 +309,13 @@ function handleSalesChange(sel) {
   hide('err-fiboSalesContact'); hide('err-fiboSalesOther');
 }
 
+function handleAshSalesChange(sel) {
+  const otherField = document.getElementById('ashSalesOtherField');
+  if (sel.value === 'Other') { otherField.style.display = 'flex'; }
+  else { otherField.style.display = 'none'; document.getElementById('ashSalesOther').value = ''; }
+  hide('err-ashSalesContact'); hide('err-ashSalesOther');
+}
+
 function handleCountryChange(sel) {
   const otherField = document.getElementById('fiboCountryOtherField');
   if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('fiboCountryOther').value = ''; }
@@ -301,6 +332,13 @@ function handleBoothCountryChange(sel) {
   const otherField = document.getElementById('boothCountryOtherField');
   if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('boothCountryOther').value = ''; }
   hide('err-boothCountry'); hide('err-boothCountryOther');
+}
+
+function handleBoothSalesChange(sel) {
+  const otherField = document.getElementById('boothSalesOtherField');
+  if (sel.value === 'Other') { otherField.style.display = 'flex'; }
+  else { otherField.style.display = 'none'; document.getElementById('boothSalesOther').value = ''; }
+  hide('err-boothSalesContact'); hide('err-boothSalesOther');
 }
 
 function selectDay(card) {
@@ -341,16 +379,36 @@ function validateFibo() {
 
 function validateAsh() {
   let ok = true;
-  const fields = [{ id: 'ashFullName', errId: 'err-ashFullName' }, { id: 'ashCompany', errId: 'err-ashCompany' }, { id: 'ashCountry', errId: 'err-ashCountry' }, { id: 'ashAttendees', errId: 'err-ashAttendees' }];
+  const fields = [
+    { id: 'ashFullName', errId: 'err-ashFullName' },
+    { id: 'ashCompany', errId: 'err-ashCompany' },
+    { id: 'ashSalesContact', errId: 'err-ashSalesContact' },
+    { id: 'ashCountry', errId: 'err-ashCountry' },
+    { id: 'ashAttendees', errId: 'err-ashAttendees' }
+  ];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
+  if (document.getElementById('ashSalesContact').value === 'Other') {
+    const otherVal = document.getElementById('ashSalesOther').value.trim();
+    if (!otherVal) { show('err-ashSalesOther'); ok = false; } else hide('err-ashSalesOther');
+  }
   if (document.getElementById('ashCountry').value === 'Other') { const otherVal = document.getElementById('ashCountryOther').value.trim(); if (!otherVal) { show('err-ashCountryOther'); ok = false; } else hide('err-ashCountryOther'); }
   return ok;
 }
 
 function validateBooth() {
   let ok = true;
-  const fields = [{ id: 'boothFullName', errId: 'err-boothFullName' }, { id: 'boothCompany', errId: 'err-boothCompany' }, { id: 'boothCountry', errId: 'err-boothCountry' }, { id: 'boothAttendees', errId: 'err-boothAttendees' }];
+  const fields = [
+    { id: 'boothFullName', errId: 'err-boothFullName' },
+    { id: 'boothCompany', errId: 'err-boothCompany' },
+    { id: 'boothSalesContact', errId: 'err-boothSalesContact' },
+    { id: 'boothCountry', errId: 'err-boothCountry' },
+    { id: 'boothAttendees', errId: 'err-boothAttendees' }
+  ];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
+  if (document.getElementById('boothSalesContact').value === 'Other') {
+    const otherVal = document.getElementById('boothSalesOther').value.trim();
+    if (!otherVal) { show('err-boothSalesOther'); ok = false; } else hide('err-boothSalesOther');
+  }
   if (document.getElementById('boothCountry').value === 'Other') { const otherVal = document.getElementById('boothCountryOther').value.trim(); if (!otherVal) { show('err-boothCountryOther'); ok = false; } else hide('err-boothCountryOther'); }
   return ok;
 }
@@ -405,8 +463,9 @@ async function submitAsh() {
   btn.disabled = true;
   btn.querySelector('span').textContent = 'Submitting...';
   
+  const salesVal = document.getElementById('ashSalesContact').value === 'Other' ? document.getElementById('ashSalesOther').value.trim() : document.getElementById('ashSalesContact').value;
   const countryVal = document.getElementById('ashCountry').value === 'Other' ? document.getElementById('ashCountryOther').value.trim() : document.getElementById('ashCountry').value;
-  const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), country: countryVal, attendees: document.getElementById('ashAttendees').value };
+  const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), salesContact: salesVal, country: countryVal, attendees: document.getElementById('ashAttendees').value };
   
   submitToGAS(payload, btn, originalText, 'Thank you for registering for the ASH Party. We look forward to seeing you there!');
 }
@@ -419,15 +478,19 @@ async function submitBooth() {
   btn.disabled = true;
   btn.querySelector('span').textContent = 'Submitting...';
   
+  const salesVal = document.getElementById('boothSalesContact').value === 'Other' ? document.getElementById('boothSalesOther').value.trim() : document.getElementById('boothSalesContact').value;
   const countryVal = document.getElementById('boothCountry').value === 'Other' ? document.getElementById('boothCountryOther').value.trim() : document.getElementById('boothCountry').value;
-  const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), country: countryVal, attendees: document.getElementById('boothAttendees').value };
+  const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), salesContact: salesVal, country: countryVal, attendees: document.getElementById('boothAttendees').value };
   
   submitToGAS(payload, btn, originalText, 'Thank you for registering for the Booth Party. Please collect your wristband on-site.');
 }
 
 function submitToGAS(payload, btn, originalText, successMsg) {
-  // Use sendBeacon for fast, reliable submission
-  const blob = new Blob([JSON.stringify({ data: JSON.stringify(payload) })], { type: 'application/x-www-form-urlencoded' });
+  // Use sendBeacon for fast submission
+  // IMPORTANT: GAS 通常会读取 e.parameter.data（表单 urlencoded）；
+  // 所以这里要发成 data=<jsonString> 的格式，确保解析一致。
+  const formBody = 'data=' + encodeURIComponent(JSON.stringify(payload));
+  const blob = new Blob([formBody], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
   const sent = navigator.sendBeacon && navigator.sendBeacon(SCRIPT_URL, blob);
   
   if (sent) {
@@ -442,8 +505,8 @@ function submitToGAS(payload, btn, originalText, successMsg) {
     fetch(SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'data=' + encodeURIComponent(JSON.stringify(payload))
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: formBody
     }).then(() => {
       showSuccess(successMsg);
     }).catch(() => {

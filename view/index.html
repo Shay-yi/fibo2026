@@ -45,6 +45,9 @@
     .empty-state { text-align: center; padding: 60px 24px; color: var(--gray-light); }
     .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--gray-light); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; padding: 10px 20px; cursor: pointer; float: right; margin-top: -60px; }
     .logout-btn:hover { border-color: var(--red); color: var(--red); }
+    .sheet-open-area { display: flex; justify-content: flex-end; margin: 16px 0 8px; }
+    .sheet-open-btn { background: transparent; border: 1px solid var(--border); color: var(--gray-light); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; padding: 10px 16px; cursor: pointer; text-transform: uppercase; }
+    .sheet-open-btn:hover { border-color: var(--gold); color: var(--gold); }
     .count-badge { display: inline-block; background: var(--gold); color: var(--black); font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 10px; margin-left: 8px; border-radius: 0; }
   </style>
 </head>
@@ -63,8 +66,7 @@
       <label>Select Your Name</label>
       <select id="salesName">
         <option value="">— Select —</option>
-        <option>Jessica</option>
-        <option>Jason</option>
+          <option>Jessica</option>
         <option>Gaby</option>
         <option>Peter</option>
         <option>Donna</option>
@@ -94,6 +96,10 @@
       <button class="tab-btn" onclick="switchTab('booth')">Booth Party <span class="count-badge" id="boothCount">0</span></button>
     </div>
 
+    <div class="sheet-open-area">
+      <button class="sheet-open-btn" id="sheetOpenBtn" style="display:none;" onclick="openSheet()">Open Google Sheet</button>
+    </div>
+
     <div class="tab-content active" id="fiboTab">
       <table class="data-table" id="fiboTable">
         <thead><tr><th>Date</th><th>Name</th><th>Company</th><th>Product</th><th>Country</th><th>Meeting</th><th>Time</th></tr></thead>
@@ -121,7 +127,9 @@
 </main>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvzvAwpt3Q5oiY3HjwgufB5nRQTu9BGOrMVV37QuSn_m2FYGEHB_76BGil7U7rWgztFg/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOSkh46ihjz6A_VvZ0FJzkxWLWdTdqBP9qlC1SjSAByar-PcQsH_QXY83HsRBzTcJuPQ/exec';
+
+let sheetUrlCache = '';
 
 function login() {
   const name = document.getElementById('salesName').value;
@@ -141,6 +149,10 @@ function login() {
     .then(r => r.json())
     .then(data => {
       if (data.success) {
+        if (data.sheetUrl) {
+          sheetUrlCache = data.sheetUrl;
+          document.getElementById('sheetOpenBtn').style.display = 'inline-block';
+        }
         showDashboard(name, data.data);
       } else {
         document.getElementById('loginError').textContent = 'Invalid credentials. Please try again.';
@@ -214,6 +226,11 @@ function switchTab(tab) {
 
 function logout() {
   location.reload();
+}
+
+function openSheet() {
+  if (!sheetUrlCache) return;
+  window.open(sheetUrlCache, '_blank');
 }
 
 // Enter key login
