@@ -67,14 +67,23 @@
       <select id="salesName">
         <option value="">— Select —</option>
           <option>Jessica</option>
-        <option>Gaby</option>
-        <option>Peter</option>
-        <option>Donna</option>
-        <option>Henry</option>
-        <option>Richard</option>
-        <option>Cecile</option>
-        <option>Alex</option>
-        <option>Shay</option>
+          <option>Gaby</option>
+          <option>Peter</option>
+          <option>Donna</option>
+          <option>Henry</option>
+          <option>Richard</option>
+          <option>Cecile</option>
+          <option>Alex</option>
+          <option>Shay</option>
+
+          <option>Victor</option>
+          <option>Kelly</option>
+          <option>Josie</option>
+          <option>Vera</option>
+          <option>Patric</option>
+          <option>Zack</option>
+          <option>Owen</option>
+          <option>Kat</option>
       </select>
     </div>
     <div class="field">
@@ -135,6 +144,11 @@ function login() {
   const name = document.getElementById('salesName').value;
   const password = document.getElementById('salesPassword').value;
   const btn = document.getElementById('loginBtn');
+
+  // 每次登录前清空，避免后端本次没返回 sheetUrl 时仍使用上一次缓存
+  sheetUrlCache = '';
+  const sheetBtn = document.getElementById('sheetOpenBtn');
+  if (sheetBtn) sheetBtn.style.display = 'none';
   
   if (!name || !password) {
     document.getElementById('loginError').textContent = 'Please enter both name and password.';
@@ -155,6 +169,10 @@ function login() {
         }
         showDashboard(name, data.data);
       } else {
+        sheetUrlCache = '';
+        if (document.getElementById('sheetOpenBtn')) {
+          document.getElementById('sheetOpenBtn').style.display = 'none';
+        }
         document.getElementById('loginError').textContent = 'Invalid credentials. Please try again.';
         document.getElementById('loginError').classList.add('visible');
         btn.disabled = false;
