@@ -114,6 +114,12 @@
   <div class="event-card" data-event="booth" onclick="selectEvent(this)"><div class="event-icon">◉</div><div class="event-name">BOOTH PARTY</div><div class="event-desc">Booth celebration event</div></div>
 </div>
 
+<div style="position:relative;z-index:1;max-width:860px;margin:14px auto 0;padding:0 24px;text-align:center;">
+  <div style="font-size:12px;color:var(--gray-light);letter-spacing:0.05em;line-height:1.6;">
+    If you are attending every event, please register and upload information for each one.
+  </div>
+</div>
+
 <main>
   <div id="formWrapper" style="display:none;">
     <div class="global-error" id="globalError"></div>
@@ -127,15 +133,15 @@
       </div>
       <div class="form-grid">
         <div class="field">
-          <label>MBH Fitness Sales Contact <span class="req">*</span></label>
+          <label>MBH Fitness Contact <span class="req">*</span></label>
           <select id="fiboSalesContact" onchange="handleSalesChange(this)">
-            <option value="">— Select Sales Contact —</option>
+            <option value="">— Select Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
-          <div class="error-msg" id="err-fiboSalesContact">Please select a sales contact.</div>
-          <div class="field" id="fiboSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="fiboSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-fiboSalesOther">Please enter the sales contact name.</div></div>
+          <div class="error-msg" id="err-fiboSalesContact">Please select a contact.</div>
+          <div class="field" id="fiboSalesOtherField" style="display:none;"><label>Please specify contact <span class="req">*</span></label><input type="text" id="fiboSalesOther" placeholder="Enter contact name" /><div class="error-msg" id="err-fiboSalesOther">Please enter the contact name.</div></div>
         </div>
         <div class="field">
           <label>Country / Region <span class="req">*</span></label>
@@ -226,17 +232,17 @@
       </div>
       <div class="form-grid full">
         <div class="field">
-          <label>MBH Fitness Sales Contact <span class="req">*</span></label>
+          <label>MBH Fitness Contact <span class="req">*</span></label>
           <select id="ashSalesContact" onchange="handleAshSalesChange(this)">
-            <option value="">— Select Sales Contact —</option>
+            <option value="">— Select Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
-          <div class="error-msg" id="err-ashSalesContact">Please select a sales contact.</div>
+          <div class="error-msg" id="err-ashSalesContact">Please select a contact.</div>
         </div>
       </div>
-      <div class="field" id="ashSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="ashSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-ashSalesOther">Please enter the sales contact name.</div></div>
+      <div class="field" id="ashSalesOtherField" style="display:none;"><label>Please specify contact <span class="req">*</span></label><input type="text" id="ashSalesOther" placeholder="Enter contact name" /><div class="error-msg" id="err-ashSalesOther">Please enter the contact name.</div></div>
       <div class="field" id="ashCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="ashCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-ashCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="ashSubmitBtn" onclick="submitAsh()"><span>Register for ASH Party</span></button></div>
     </div>
@@ -274,17 +280,17 @@
       </div>
       <div class="form-grid full">
         <div class="field">
-          <label>MBH Fitness Sales Contact <span class="req">*</span></label>
+          <label>MBH Fitness Contact <span class="req">*</span></label>
           <select id="boothSalesContact" onchange="handleBoothSalesChange(this)">
-            <option value="">— Select Sales Contact —</option>
+            <option value="">— Select Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
             <option value="Other">Other (Manual Input)</option>
           </select>
-          <div class="error-msg" id="err-boothSalesContact">Please select a sales contact.</div>
+          <div class="error-msg" id="err-boothSalesContact">Please select a contact.</div>
         </div>
       </div>
-      <div class="field" id="boothSalesOtherField" style="display:none;"><label>Please specify sales contact <span class="req">*</span></label><input type="text" id="boothSalesOther" placeholder="Enter sales contact name" /><div class="error-msg" id="err-boothSalesOther">Please enter the sales contact name.</div></div>
+      <div class="field" id="boothSalesOtherField" style="display:none;"><label>Please specify contact <span class="req">*</span></label><input type="text" id="boothSalesOther" placeholder="Enter contact name" /><div class="error-msg" id="err-boothSalesOther">Please enter the contact name.</div></div>
       <div class="field" id="boothCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="boothCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-boothCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="boothSubmitBtn" onclick="submitBooth()"><span>Register for Booth Party</span></button></div>
     </div>
