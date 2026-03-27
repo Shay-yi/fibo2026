@@ -29,6 +29,7 @@
     .event-name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.1em; color: var(--white); margin-bottom: 8px; position: relative; }
     .event-card.selected .event-name { color: var(--gold); }
     .event-desc { font-size: 11px; color: var(--gray-light); letter-spacing: 0.05em; position: relative; }
+    .event-time { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.1em; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
     main { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
     .section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -109,9 +110,9 @@
 </header>
 
 <div class="event-selector">
-  <div class="event-card" data-event="fibo" onclick="selectEvent(this)"><div class="event-icon">◈</div><div class="event-name">FIBO MEETING</div><div class="event-desc">Schedule a booth meeting</div></div>
-  <div class="event-card" data-event="ash" onclick="selectEvent(this)"><div class="event-icon">✦</div><div class="event-name">ASH PARTY</div><div class="event-desc">Evening networking event</div></div>
-  <div class="event-card" data-event="booth" onclick="selectEvent(this)"><div class="event-icon">◉</div><div class="event-name">BOOTH PARTY</div><div class="event-desc">Booth celebration event</div></div>
+  <div class="event-card" data-event="booth" onclick="selectEvent(this)"><div class="event-icon">◉</div><div class="event-name">BOOTH PARTY</div><div class="event-desc">Booth celebration event</div><div class="event-time">April 16, 2026 · 17:00-19:00</div></div>
+  <div class="event-card" data-event="ash" onclick="selectEvent(this)"><div class="event-icon">✦</div><div class="event-name">ASH PARTY</div><div class="event-desc">Evening networking event</div><div class="event-time">April 17, 2026 · 18:30-22:30</div></div>
+  <div class="event-card" data-event="fibo" onclick="selectEvent(this)"><div class="event-icon">◈</div><div class="event-name">FIBO SHOW</div><div class="event-desc">Schedule a booth meeting</div><div class="event-time">April 16-19 · 09:00-18:00</div></div>
 </div>
 
 <div style="position:relative;z-index:1;max-width:860px;margin:14px auto 0;padding:0 24px;text-align:center;">
@@ -307,7 +308,7 @@
 <footer>2026 FIBO — Cologne, Germany — April 16–19 ◆ MBH Fitness</footer>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH9YjKQMzXeZsYGbDbF3CtTpYBvAjSWhhlj_mxCoGm_ML3jPkBpS4BsyK2BebZI4gd/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPOr1Ioxt6fVL-AorwvcEmyrsZio0t-3shcpJojj3i6J2fYdZbbfnOUq91ZiPvfmnc4A/exec';
 const TIME_SLOTS = ['09:00 – 10:00','10:00 – 11:00','11:00 – 12:00','12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00','17:00 – 18:00'];
 const DAY_LABELS = {'2026-04-16':'Thursday, April 16','2026-04-17':'Friday, April 17','2026-04-18':'Saturday, April 18','2026-04-19':'Sunday, April 19'};
 let selectedDate = '', selectedSlot = '', currentEvent = '';
