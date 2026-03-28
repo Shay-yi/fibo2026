@@ -308,7 +308,7 @@
 <footer>2026 FIBO — Cologne, Germany — April 16–19 ◆ MBH Fitness</footer>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPOr1Ioxt6fVL-AorwvcEmyrsZio0t-3shcpJojj3i6J2fYdZbbfnOUq91ZiPvfmnc4A/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXT4oqyAA6aX3XXrhuIkgd94AjK7bRQkssOhtSKmgTgqZBzTEGSPM_CDuLrvYgZh0p/exec';
 const TIME_SLOTS = ['09:00 – 10:00','10:00 – 11:00','11:00 – 12:00','12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00','17:00 – 18:00'];
 const DAY_LABELS = {'2026-04-16':'Thursday, April 16','2026-04-17':'Friday, April 17','2026-04-18':'Saturday, April 18','2026-04-19':'Sunday, April 19'};
 let selectedDate = '', selectedSlot = '', currentEvent = '';
@@ -529,6 +529,41 @@ function validateBooth() {
   return ok;
 }
 
+/**
+ * GAS Web App：script.google.com 对 POST 常返回 302，浏览器跟随重定向时可能把 POST 改成 GET 并丢掉 body，doPost 根本收不到 data。
+ * 可靠做法：用隐藏 iframe 发 GET： ?data=<encodeURIComponent(json)> ，并在 GAS 的 doGet 里检测到 data 后转调 doPost（见下方注释里的 GAS 片段）。
+ */
+function postPayloadToGAS_(payload, btn, originalText, successMsg, delayMs) {
+  const wait = typeof delayMs === 'number' ? delayMs : 2500;
+  const dataStr = JSON.stringify(payload);
+  if (dataStr.length > 7500) {
+    hide('globalError');
+    const errEl = document.getElementById('globalError');
+    errEl.textContent = 'Your submission is too long for a single request. Please shorten Notes and try again.';
+    errEl.classList.add('visible');
+    if (btn) {
+      btn.disabled = false;
+      const span = btn.querySelector && btn.querySelector('span');
+      if (span) span.textContent = originalText;
+    }
+    return;
+  }
+  const sep = SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?';
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'display:none;width:0;height:0;border:0;position:absolute';
+  iframe.src = SCRIPT_URL + sep + 'data=' + encodeURIComponent(dataStr);
+  document.body.appendChild(iframe);
+  setTimeout(() => {
+    showSuccess(successMsg);
+    if (btn) {
+      btn.disabled = false;
+      const span = btn.querySelector && btn.querySelector('span');
+      if (span) span.textContent = originalText;
+    }
+    if (iframe.parentNode) document.body.removeChild(iframe);
+  }, wait);
+}
+
 async function submitFibo() {
   hide('globalError');
   if (!validateFibo()) return;
@@ -536,41 +571,14 @@ async function submitFibo() {
   const originalText = btn.querySelector('span').textContent;
   btn.disabled = true;
   btn.querySelector('span').textContent = 'Submitting...';
-  
+
   const salesVal = document.getElementById('fiboSalesContact').value === 'Other' ? document.getElementById('fiboSalesOther').value.trim() : document.getElementById('fiboSalesContact').value;
   const countryVal = document.getElementById('fiboCountry').value === 'Other' ? document.getElementById('fiboCountryOther').value.trim() : document.getElementById('fiboCountry').value;
   const productCategoryVal = document.getElementById('fiboProductCategory').value.trim();
 
   const payload = { eventType: 'FIBO', fullName: document.getElementById('fiboFullName').value.trim(), company: document.getElementById('fiboCompany').value.trim(), salesContact: salesVal, productCategory: productCategoryVal, country: countryVal, meetingDate: DAY_LABELS[selectedDate], timeSlot: selectedSlot, notes: document.getElementById('fiboNotes').value.trim() };
-  
-  // Create a hidden iframe for submission
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden-iframe';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-  
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = SCRIPT_URL;
-  form.target = 'hidden-iframe';
-  form.style.display = 'none';
-  
-  const input = document.createElement('input');
-  input.name = 'data';
-  input.value = JSON.stringify(payload);
-  form.appendChild(input);
-  
-  document.body.appendChild(form);
-  form.submit();
-  
-  // Show success after submission
-  setTimeout(() => {
-    showSuccess('Thank you for registering. Our team will reach out to confirm your meeting appointment.');
-    btn.disabled = false;
-    btn.querySelector('span').textContent = originalText;
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
-  }, 2000);
+
+  postPayloadToGAS_(payload, btn, originalText, 'Thank you for registering. Our team will reach out to confirm your meeting appointment.', 2000);
 }
 
 async function submitAsh() {
@@ -584,8 +592,8 @@ async function submitAsh() {
   const salesVal = document.getElementById('ashSalesContact').value === 'Other' ? document.getElementById('ashSalesOther').value.trim() : document.getElementById('ashSalesContact').value;
   const countryVal = document.getElementById('ashCountry').value === 'Other' ? document.getElementById('ashCountryOther').value.trim() : document.getElementById('ashCountry').value;
   const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), salesContact: salesVal, country: countryVal, attendees: document.getElementById('ashAttendees').value };
-  
-  submitToGAS(payload, btn, originalText, 'Thank you for registering for the ASH Party. We look forward to seeing you there!');
+
+  postPayloadToGAS_(payload, btn, originalText, 'Thank you for registering for the ASH Party. We look forward to seeing you there!', 2000);
 }
 
 async function submitBooth() {
@@ -599,41 +607,8 @@ async function submitBooth() {
   const salesVal = document.getElementById('boothSalesContact').value === 'Other' ? document.getElementById('boothSalesOther').value.trim() : document.getElementById('boothSalesContact').value;
   const countryVal = document.getElementById('boothCountry').value === 'Other' ? document.getElementById('boothCountryOther').value.trim() : document.getElementById('boothCountry').value;
   const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), salesContact: salesVal, country: countryVal, attendees: document.getElementById('boothAttendees').value };
-  
-  submitToGAS(payload, btn, originalText, 'Thank you for registering for the Booth Party. Please collect your wristband on-site.');
-}
 
-function submitToGAS(payload, btn, originalText, successMsg) {
-  // Use sendBeacon for fast submission
-  // IMPORTANT: GAS 通常会读取 e.parameter.data（表单 urlencoded）；
-  // 所以这里要发成 data=<jsonString> 的格式，确保解析一致。
-  const formBody = 'data=' + encodeURIComponent(JSON.stringify(payload));
-  const blob = new Blob([formBody], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
-  const sent = navigator.sendBeacon && navigator.sendBeacon(SCRIPT_URL, blob);
-  
-  if (sent) {
-    // sendBeacon succeeded, show success immediately
-    setTimeout(() => {
-      showSuccess(successMsg);
-      btn.disabled = false;
-      btn.querySelector('span').textContent = originalText;
-    }, 500);
-  } else {
-    // Fallback to fetch with short timeout
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: formBody
-    }).then(() => {
-      showSuccess(successMsg);
-    }).catch(() => {
-      showSuccess(successMsg); // Assume success even on error (no-cors)
-    }).finally(() => {
-      btn.disabled = false;
-      btn.querySelector('span').textContent = originalText;
-    });
-  }
+  postPayloadToGAS_(payload, btn, originalText, 'Thank you for registering for the Booth Party. Please collect your wristband on-site.', 2000);
 }
 
 function showSuccess(msg) {

@@ -151,7 +151,7 @@
 </main>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH9YjKQMzXeZsYGbDbF3CtTpYBvAjSWhhlj_mxCoGm_ML3jPkBpS4BsyK2BebZI4gd/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXT4oqyAA6aX3XXrhuIkgd94AjK7bRQkssOhtSKmgTgqZBzTEGSPM_CDuLrvYgZh0p/exec';
 
 let sheetUrlCache = '';
 let pendingLoginName = '';
@@ -374,7 +374,7 @@ function changePassword() {
       errorEl.classList.add('visible');
     })
     .finally(() => {
-      btn.disabled = false;
+      btn.disabled = false;           
       btn.textContent = 'UPDATE PASSWORD';
     });
 }
