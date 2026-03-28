@@ -139,10 +139,8 @@
             <option value="">— Select Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
-            <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-fiboSalesContact">Please select a contact.</div>
-          <div class="field" id="fiboSalesOtherField" style="display:none;"><label>Please specify contact <span class="req">*</span></label><input type="text" id="fiboSalesOther" placeholder="Enter contact name" /><div class="error-msg" id="err-fiboSalesOther">Please enter the contact name.</div></div>
         </div>
         <div class="field">
           <label>Country / Region <span class="req">*</span></label>
@@ -238,12 +236,10 @@
             <option value="">— Select Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
-            <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-ashSalesContact">Please select a contact.</div>
         </div>
       </div>
-      <div class="field" id="ashSalesOtherField" style="display:none;"><label>Please specify contact <span class="req">*</span></label><input type="text" id="ashSalesOther" placeholder="Enter contact name" /><div class="error-msg" id="err-ashSalesOther">Please enter the contact name.</div></div>
       <div class="field" id="ashCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="ashCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-ashCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="ashSubmitBtn" onclick="submitAsh()"><span>Register for ASH Party</span></button></div>
     </div>
@@ -286,12 +282,10 @@
             <option value="">— Select Contact —</option>
             <option>Jessica</option><option>Gaby</option><option>Peter</option><option>Donna</option><option>Henry</option><option>Richard</option><option>Cecile</option><option>Alex</option><option>Shay</option>
             <option>Victor</option><option>Kelly</option><option>Josie</option><option>Vera</option><option>Patrick</option><option>Zack</option><option>Owen</option><option>Kat</option>
-            <option value="Other">Other (Manual Input)</option>
           </select>
           <div class="error-msg" id="err-boothSalesContact">Please select a contact.</div>
         </div>
       </div>
-      <div class="field" id="boothSalesOtherField" style="display:none;"><label>Please specify contact <span class="req">*</span></label><input type="text" id="boothSalesOther" placeholder="Enter contact name" /><div class="error-msg" id="err-boothSalesOther">Please enter the contact name.</div></div>
       <div class="field" id="boothCountryOtherField" style="display:none;"><label>Please specify your country <span class="req">*</span></label><input type="text" id="boothCountryOther" placeholder="Enter your country" /><div class="error-msg" id="err-boothCountryOther">Please enter your country.</div></div>
       <div class="submit-area"><button class="btn-submit" id="boothSubmitBtn" onclick="submitBooth()"><span>Register for Booth Party</span></button></div>
     </div>
@@ -315,78 +309,229 @@ let selectedDate = '', selectedSlot = '', currentEvent = '';
 
 // Keep event selection after refresh
 const EVENT_SELECT_KEY = 'fibo_current_event_v1';
+const REGISTRATION_SHARED_KEY = 'fibo_mbh_registration_shared_v1';
+let _applyingSharedReg_ = false;
 
-function syncFiboNameCompanyToOthers_() {
-  const fiboFullNameEl = document.getElementById('fiboFullName');
-  const fiboCompanyEl = document.getElementById('fiboCompany');
-  if (!fiboFullNameEl || !fiboCompanyEl) return;
-
-  const fullName = fiboFullNameEl.value.trim();
-  const company = fiboCompanyEl.value.trim();
-
-  // Only set when FIBO has values; keep user-entered values in other tabs if FIBO is empty.
-  if (fullName) {
-    const ashFullNameEl = document.getElementById('ashFullName');
-    const boothFullNameEl = document.getElementById('boothFullName');
-    if (ashFullNameEl) ashFullNameEl.value = fullName;
-    if (boothFullNameEl) boothFullNameEl.value = fullName;
+function mergeSharedRegistrationFromForms_() {
+  const t = (v) => (v != null && String(v).trim()) || '';
+  const pick = (a, b, c) => t(a) || t(b) || t(c);
+  const gv = (id) => (document.getElementById(id) && document.getElementById(id).value) || '';
+  const country = pick(gv('fiboCountry'), gv('ashCountry'), gv('boothCountry'));
+  let countryOther = '';
+  if (country === 'Other') {
+    countryOther = pick(gv('fiboCountryOther'), gv('ashCountryOther'), gv('boothCountryOther'));
   }
+  return {
+    fullName: pick(gv('fiboFullName'), gv('ashFullName'), gv('boothFullName')),
+    company: pick(gv('fiboCompany'), gv('ashCompany'), gv('boothCompany')),
+    sales: pick(gv('fiboSalesContact'), gv('ashSalesContact'), gv('boothSalesContact')),
+    country,
+    countryOther
+  };
+}
 
-  if (company) {
-    const ashCompanyEl = document.getElementById('ashCompany');
-    const boothCompanyEl = document.getElementById('boothCompany');
-    if (ashCompanyEl) ashCompanyEl.value = company;
-    if (boothCompanyEl) boothCompanyEl.value = company;
+function readCanonicalSharedDraftFromDom_() {
+  return mergeSharedRegistrationFromForms_();
+}
+
+function mirrorFullNameFrom_(sourceId) {
+  const src = document.getElementById(sourceId);
+  if (!src) return;
+  const v = src.value;
+  ['fiboFullName', 'ashFullName', 'boothFullName'].forEach(id => {
+    if (id !== sourceId) {
+      const el = document.getElementById(id);
+      if (el) el.value = v;
+    }
+  });
+  persistSharedRegistration_(readCanonicalSharedDraftFromDom_());
+}
+
+function mirrorCompanyFrom_(sourceId) {
+  const src = document.getElementById(sourceId);
+  if (!src) return;
+  const v = src.value;
+  ['fiboCompany', 'ashCompany', 'boothCompany'].forEach(id => {
+    if (id !== sourceId) {
+      const el = document.getElementById(id);
+      if (el) el.value = v;
+    }
+  });
+  persistSharedRegistration_(readCanonicalSharedDraftFromDom_());
+}
+
+function mirrorCountryOtherFrom_(sourceId) {
+  const src = document.getElementById(sourceId);
+  if (!src) return;
+  const v = src.value;
+  ['fiboCountryOther', 'ashCountryOther', 'boothCountryOther'].forEach(id => {
+    if (id !== sourceId) {
+      const el = document.getElementById(id);
+      if (el) el.value = v;
+    }
+  });
+  persistSharedRegistration_(readCanonicalSharedDraftFromDom_());
+}
+
+function mirrorSalesFrom_(sourceId) {
+  const src = document.getElementById(sourceId);
+  if (!src) return;
+  const val = src.value;
+  ['fiboSalesContact', 'ashSalesContact', 'boothSalesContact'].forEach(id => {
+    if (id === sourceId) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    const opt = [...el.options].find(o => o.value === val || (val && o.textContent.trim() === val));
+    if (opt) el.value = opt.value;
+  });
+  persistSharedRegistration_(readCanonicalSharedDraftFromDom_());
+}
+
+function mirrorCountrySelectFrom_(sourceId) {
+  const src = document.getElementById(sourceId);
+  if (!src) return;
+  const v = src.value;
+  const otherBy = { fiboCountry: 'fiboCountryOther', ashCountry: 'ashCountryOther', boothCountry: 'boothCountryOther' };
+  const srcOther = document.getElementById(otherBy[sourceId]);
+  const othVal = (v === 'Other' && srcOther) ? srcOther.value : '';
+
+  _applyingSharedReg_ = true;
+  try {
+    ['fiboCountry', 'ashCountry', 'boothCountry'].forEach(id => {
+      if (id === sourceId) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const opt = [...el.options].find(o => o.value === v);
+      if (opt) el.value = v;
+    });
+    handleCountryChange(document.getElementById('fiboCountry'));
+    handleAshCountryChange(document.getElementById('ashCountry'));
+    handleBoothCountryChange(document.getElementById('boothCountry'));
+    if (v === 'Other') {
+      ['fiboCountryOther', 'ashCountryOther', 'boothCountryOther'].forEach(oid => {
+        const el = document.getElementById(oid);
+        if (el) el.value = othVal;
+      });
+    }
+  } finally {
+    _applyingSharedReg_ = false;
+  }
+  persistSharedRegistration_(readCanonicalSharedDraftFromDom_());
+}
+
+function applySharedRegistrationToForms_(draft) {
+  if (!draft) return;
+  _applyingSharedReg_ = true;
+  try {
+  const fullName = draft.fullName || '';
+  const company = draft.company || '';
+  const sales = draft.sales || '';
+  const country = draft.country || '';
+  const countryOther = draft.countryOther || '';
+  ['fiboFullName', 'ashFullName', 'boothFullName'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = fullName;
+  });
+  ['fiboCompany', 'ashCompany', 'boothCompany'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = company;
+  });
+  function setSalesSelect(id) {
+    const sel = document.getElementById(id);
+    if (!sel || !sales) return;
+    const opt = [...sel.options].find(o => o.value === sales || o.textContent.trim() === sales);
+    if (opt) sel.value = opt.value;
+  }
+  setSalesSelect('fiboSalesContact');
+  setSalesSelect('ashSalesContact');
+  setSalesSelect('boothSalesContact');
+  function setCountrySelect(id) {
+    const sel = document.getElementById(id);
+    if (!sel || !country) return;
+    const opt = [...sel.options].find(o => o.value === country);
+    if (opt) sel.value = country;
+  }
+  setCountrySelect('fiboCountry');
+  setCountrySelect('ashCountry');
+  setCountrySelect('boothCountry');
+  handleCountryChange(document.getElementById('fiboCountry'));
+  handleAshCountryChange(document.getElementById('ashCountry'));
+  handleBoothCountryChange(document.getElementById('boothCountry'));
+  if (country === 'Other') {
+    ['fiboCountryOther', 'ashCountryOther', 'boothCountryOther'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = countryOther;
+    });
+  }
+  } finally {
+    _applyingSharedReg_ = false;
   }
 }
 
-// When typing in FIBO, keep ASH/BOOTH default values in sync.
-const fiboFullNameEl = document.getElementById('fiboFullName');
-const fiboCompanyEl = document.getElementById('fiboCompany');
-if (fiboFullNameEl) fiboFullNameEl.addEventListener('input', syncFiboNameCompanyToOthers_);
-if (fiboCompanyEl) fiboCompanyEl.addEventListener('input', syncFiboNameCompanyToOthers_);
+function loadSharedRegistrationDraft_() {
+  try {
+    const raw = localStorage.getItem(REGISTRATION_SHARED_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function mergeDomAndLocalSharedRegistration_() {
+  const d = mergeSharedRegistrationFromForms_();
+  const ls = loadSharedRegistrationDraft_();
+  const merged = {
+    fullName: d.fullName || (ls && ls.fullName) || '',
+    company: d.company || (ls && ls.company) || '',
+    sales: d.sales || (ls && ls.sales) || '',
+    country: d.country || (ls && ls.country) || '',
+    countryOther: ''
+  };
+  if (merged.country === 'Other') {
+    merged.countryOther =
+      (d.country === 'Other' ? d.countryOther : '') ||
+      (ls && ls.country === 'Other' ? (ls.countryOther || '') : '') ||
+      '';
+  }
+  return merged;
+}
+
+function persistSharedRegistration_(draft) {
+  try {
+    localStorage.setItem(REGISTRATION_SHARED_KEY, JSON.stringify(draft));
+  } catch (e) {}
+}
+
+function syncAllSharedRegistrationFields_() {
+  persistSharedRegistration_(readCanonicalSharedDraftFromDom_());
+}
+
+function refreshSharedRegistrationOnEventSelect_() {
+  const merged = mergeDomAndLocalSharedRegistration_();
+  applySharedRegistrationToForms_(merged);
+  persistSharedRegistration_(merged);
+}
+
+function syncFiboNameCompanyToOthers_() {
+  syncAllSharedRegistrationFields_();
+}
+
+['fiboFullName', 'ashFullName', 'boothFullName'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => mirrorFullNameFrom_(id));
+});
+['fiboCompany', 'ashCompany', 'boothCompany'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => mirrorCompanyFrom_(id));
+});
+['fiboCountryOther', 'ashCountryOther', 'boothCountryOther'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => mirrorCountryOtherFrom_(id));
+});
 
 function syncFiboSelectionsToOthers_() {
-  // Sales contact
-  const fiboSalesSelect = document.getElementById('fiboSalesContact');
-  const fiboSalesOther = document.getElementById('fiboSalesOther');
-  const ashSalesSelect = document.getElementById('ashSalesContact');
-  const ashSalesOther = document.getElementById('ashSalesOther');
-  const boothSalesSelect = document.getElementById('boothSalesContact');
-  const boothSalesOther = document.getElementById('boothSalesOther');
-
-  // Country
-  const fiboCountrySelect = document.getElementById('fiboCountry');
-  const fiboCountryOther = document.getElementById('fiboCountryOther');
-  const ashCountrySelect = document.getElementById('ashCountry');
-  const ashCountryOther = document.getElementById('ashCountryOther');
-  const boothCountrySelect = document.getElementById('boothCountry');
-  const boothCountryOther = document.getElementById('boothCountryOther');
-
-  if (!fiboSalesSelect || !ashSalesSelect || !boothSalesSelect) return;
-  if (!fiboCountrySelect || !ashCountrySelect || !boothCountrySelect) return;
-
-  const salesVal = fiboSalesSelect.value;
-  const salesOtherVal = (salesVal === 'Other' && fiboSalesOther) ? fiboSalesOther.value.trim() : '';
-
-  ashSalesSelect.value = salesVal;
-  handleAshSalesChange(ashSalesSelect);
-  if (salesVal === 'Other' && ashSalesOther) ashSalesOther.value = salesOtherVal;
-
-  boothSalesSelect.value = salesVal;
-  handleBoothSalesChange(boothSalesSelect);
-  if (salesVal === 'Other' && boothSalesOther) boothSalesOther.value = salesOtherVal;
-
-  const countryVal = fiboCountrySelect.value;
-  const countryOtherVal = (countryVal === 'Other' && fiboCountryOther) ? fiboCountryOther.value.trim() : '';
-
-  ashCountrySelect.value = countryVal;
-  handleAshCountryChange(ashCountrySelect);
-  if (countryVal === 'Other' && ashCountryOther) ashCountryOther.value = countryOtherVal;
-
-  boothCountrySelect.value = countryVal;
-  handleBoothCountryChange(boothCountrySelect);
-  if (countryVal === 'Other' && boothCountryOther) boothCountryOther.value = countryOtherVal;
+  syncAllSharedRegistrationFields_();
 }
 
 function selectEvent(card) {
@@ -405,47 +550,43 @@ function selectEvent(card) {
   if (currentEvent === 'ash') document.getElementById('ashForm').style.display = 'block';
   if (currentEvent === 'booth') document.getElementById('boothForm').style.display = 'block';
 
-  // If user already filled FIBO Full Name / Company, default them into ASH & BOOTH.
-  if (currentEvent !== 'fibo') syncFiboNameCompanyToOthers_();
-  if (currentEvent !== 'fibo') syncFiboSelectionsToOthers_();
+  refreshSharedRegistrationOnEventSelect_();
 }
 
 function handleSalesChange(sel) {
-  const otherField = document.getElementById('fiboSalesOtherField');
-  if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('fiboSalesOther').value = ''; }
-  hide('err-fiboSalesContact'); hide('err-fiboSalesOther');
+  hide('err-fiboSalesContact');
+  if (!_applyingSharedReg_) mirrorSalesFrom_(sel.id);
 }
 
 function handleAshSalesChange(sel) {
-  const otherField = document.getElementById('ashSalesOtherField');
-  if (sel.value === 'Other') { otherField.style.display = 'flex'; }
-  else { otherField.style.display = 'none'; document.getElementById('ashSalesOther').value = ''; }
-  hide('err-ashSalesContact'); hide('err-ashSalesOther');
+  hide('err-ashSalesContact');
+  if (!_applyingSharedReg_) mirrorSalesFrom_(sel.id);
 }
 
 function handleCountryChange(sel) {
   const otherField = document.getElementById('fiboCountryOtherField');
   if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('fiboCountryOther').value = ''; }
   hide('err-fiboCountry'); hide('err-fiboCountryOther');
+  if (!_applyingSharedReg_) mirrorCountrySelectFrom_('fiboCountry');
 }
 
 function handleAshCountryChange(sel) {
   const otherField = document.getElementById('ashCountryOtherField');
   if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('ashCountryOther').value = ''; }
   hide('err-ashCountry'); hide('err-ashCountryOther');
+  if (!_applyingSharedReg_) mirrorCountrySelectFrom_('ashCountry');
 }
 
 function handleBoothCountryChange(sel) {
   const otherField = document.getElementById('boothCountryOtherField');
   if (sel.value === 'Other') { otherField.style.display = 'flex'; } else { otherField.style.display = 'none'; document.getElementById('boothCountryOther').value = ''; }
   hide('err-boothCountry'); hide('err-boothCountryOther');
+  if (!_applyingSharedReg_) mirrorCountrySelectFrom_('boothCountry');
 }
 
 function handleBoothSalesChange(sel) {
-  const otherField = document.getElementById('boothSalesOtherField');
-  if (sel.value === 'Other') { otherField.style.display = 'flex'; }
-  else { otherField.style.display = 'none'; document.getElementById('boothSalesOther').value = ''; }
-  hide('err-boothSalesContact'); hide('err-boothSalesOther');
+  hide('err-boothSalesContact');
+  if (!_applyingSharedReg_) mirrorSalesFrom_(sel.id);
 }
 
 function selectDay(card) {
@@ -486,7 +627,6 @@ function validateFibo() {
 
   const pcVal = document.getElementById('fiboProductCategory').value.trim();
   if (!pcVal) { show('err-fiboProductCategory'); ok = false; } else hide('err-fiboProductCategory');
-  if (document.getElementById('fiboSalesContact').value === 'Other') { const otherVal = document.getElementById('fiboSalesOther').value.trim(); if (!otherVal) { show('err-fiboSalesOther'); ok = false; } else hide('err-fiboSalesOther'); }
   if (document.getElementById('fiboCountry').value === 'Other') { const otherVal = document.getElementById('fiboCountryOther').value.trim(); if (!otherVal) { show('err-fiboCountryOther'); ok = false; } else hide('err-fiboCountryOther'); }
   if (!selectedDate) { show('err-meetingDate'); ok = false; } else hide('err-meetingDate');
   if (!selectedSlot) { show('err-timeslot'); ok = false; } else hide('err-timeslot');
@@ -503,10 +643,6 @@ function validateAsh() {
     { id: 'ashAttendees', errId: 'err-ashAttendees' }
   ];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
-  if (document.getElementById('ashSalesContact').value === 'Other') {
-    const otherVal = document.getElementById('ashSalesOther').value.trim();
-    if (!otherVal) { show('err-ashSalesOther'); ok = false; } else hide('err-ashSalesOther');
-  }
   if (document.getElementById('ashCountry').value === 'Other') { const otherVal = document.getElementById('ashCountryOther').value.trim(); if (!otherVal) { show('err-ashCountryOther'); ok = false; } else hide('err-ashCountryOther'); }
   return ok;
 }
@@ -521,10 +657,6 @@ function validateBooth() {
     { id: 'boothAttendees', errId: 'err-boothAttendees' }
   ];
   fields.forEach(f => { const val = document.getElementById(f.id).value.trim(); if (!val) { show(f.errId); ok = false; } else hide(f.errId); });
-  if (document.getElementById('boothSalesContact').value === 'Other') {
-    const otherVal = document.getElementById('boothSalesOther').value.trim();
-    if (!otherVal) { show('err-boothSalesOther'); ok = false; } else hide('err-boothSalesOther');
-  }
   if (document.getElementById('boothCountry').value === 'Other') { const otherVal = document.getElementById('boothCountryOther').value.trim(); if (!otherVal) { show('err-boothCountryOther'); ok = false; } else hide('err-boothCountryOther'); }
   return ok;
 }
@@ -572,7 +704,7 @@ async function submitFibo() {
   btn.disabled = true;
   btn.querySelector('span').textContent = 'Submitting...';
 
-  const salesVal = document.getElementById('fiboSalesContact').value === 'Other' ? document.getElementById('fiboSalesOther').value.trim() : document.getElementById('fiboSalesContact').value;
+  const salesVal = document.getElementById('fiboSalesContact').value;
   const countryVal = document.getElementById('fiboCountry').value === 'Other' ? document.getElementById('fiboCountryOther').value.trim() : document.getElementById('fiboCountry').value;
   const productCategoryVal = document.getElementById('fiboProductCategory').value.trim();
 
@@ -589,7 +721,7 @@ async function submitAsh() {
   btn.disabled = true;
   btn.querySelector('span').textContent = 'Submitting...';
   
-  const salesVal = document.getElementById('ashSalesContact').value === 'Other' ? document.getElementById('ashSalesOther').value.trim() : document.getElementById('ashSalesContact').value;
+  const salesVal = document.getElementById('ashSalesContact').value;
   const countryVal = document.getElementById('ashCountry').value === 'Other' ? document.getElementById('ashCountryOther').value.trim() : document.getElementById('ashCountry').value;
   const payload = { eventType: 'ASH', fullName: document.getElementById('ashFullName').value.trim(), company: document.getElementById('ashCompany').value.trim(), salesContact: salesVal, country: countryVal, attendees: document.getElementById('ashAttendees').value };
 
@@ -604,7 +736,7 @@ async function submitBooth() {
   btn.disabled = true;
   btn.querySelector('span').textContent = 'Submitting...';
   
-  const salesVal = document.getElementById('boothSalesContact').value === 'Other' ? document.getElementById('boothSalesOther').value.trim() : document.getElementById('boothSalesContact').value;
+  const salesVal = document.getElementById('boothSalesContact').value;
   const countryVal = document.getElementById('boothCountry').value === 'Other' ? document.getElementById('boothCountryOther').value.trim() : document.getElementById('boothCountry').value;
   const payload = { eventType: 'BOOTH', fullName: document.getElementById('boothFullName').value.trim(), company: document.getElementById('boothCompany').value.trim(), salesContact: salesVal, country: countryVal, attendees: document.getElementById('boothAttendees').value };
 
@@ -612,6 +744,7 @@ async function submitBooth() {
 }
 
 function showSuccess(msg) {
+  syncAllSharedRegistrationFields_();
   document.getElementById('fiboForm').style.display = 'none';
   document.getElementById('ashForm').style.display = 'none';
   document.getElementById('boothForm').style.display = 'none';
