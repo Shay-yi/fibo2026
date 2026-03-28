@@ -202,22 +202,68 @@ function restoreDashboardCache_() {
   }
 }
 
+/** GAS 的 action=login 不返回表格行，必须用 action=loadData 取 fibo/ash/booth */
+function loadDashboardData_(name, password, onOk, onErr) {
+  fetch(`${SCRIPT_URL}?action=loadData&sales=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        if (onErr) onErr(data.message || 'Failed to load data.');
+        return;
+      }
+      if (data.sheetUrl) {
+        sheetUrlCache = data.sheetUrl;
+        const sheetBtn = document.getElementById('sheetOpenBtn');
+        if (sheetBtn) sheetBtn.style.display = 'inline-block';
+      }
+      const rows = data.data || { fibo: [], ash: [], booth: [] };
+      if (onOk) onOk(rows);
+    })
+    .catch(() => {
+      if (onErr) onErr('Connection error while loading data.');
+    });
+}
+
 function autoLoginFromSession_() {
   const name = localStorage.getItem(SESSION_SALES_NAME_KEY);
   const password = localStorage.getItem(SESSION_SALES_PASSWORD_KEY);
   if (!name || !password) return;
 
-  // 保底：先渲染上次的 dashboard，避免刷新时跳回登录界面
-  if (restoreDashboardCache_()) return;
-
   const salesNameEl = document.getElementById('salesName');
   const salesPasswordEl = document.getElementById('salesPassword');
-  if (!salesNameEl || !salesPasswordEl) return;
+  if (salesNameEl && salesPasswordEl) {
+    salesNameEl.value = name;
+    salesPasswordEl.value = password;
+  }
 
-  // Fill inputs and call normal login()
-  salesNameEl.value = name;
-  salesPasswordEl.value = password;
-  login();
+  // 可先秒开缓存，但必须再拉 loadData 才能与 Google Sheet 同步
+  restoreDashboardCache_();
+
+  fetch(`${SCRIPT_URL}?action=login&sales=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        try {
+          clearLoginSession_();
+          localStorage.removeItem(DASHBOARD_CACHE_KEY);
+        } catch (e) {}
+        return;
+      }
+      if (data.mustChangePassword) {
+        document.getElementById('loginBox').style.display = 'none';
+        showChangePasswordBox(name, password, null);
+        return;
+      }
+      if (data.sheetUrl) {
+        sheetUrlCache = data.sheetUrl;
+        const sheetBtn = document.getElementById('sheetOpenBtn');
+        if (sheetBtn) sheetBtn.style.display = 'inline-block';
+      }
+      loadDashboardData_(name, password, function (dash) {
+        showDashboard(name, dash);
+      }, function () {});
+    })
+    .catch(() => {});
 }
 
 function login() {
@@ -247,16 +293,25 @@ function login() {
           sheetUrlCache = data.sheetUrl;
           document.getElementById('sheetOpenBtn').style.display = 'inline-block';
         }
-        // Login 成功后就保存登录信息：即使 mustChangePassword=true，也避免刷新后重新要求输入
         saveLoginSession_(name, password);
         if (data.mustChangePassword) {
-          // 仍需改密：刷新时先走 login 流程，让用户完成改密
           setPwChanged_(name, false);
-          showChangePasswordBox(name, password, data.data);
+          showChangePasswordBox(name, password, null);
+          btn.disabled = false;
+          btn.textContent = 'LOGIN';
         } else {
-          // 已完成改密：刷新时直接 loadData 进入 dashboard
           setPwChanged_(name, true);
-          showDashboard(name, data.data);
+          btn.textContent = 'LOADING...';
+          loadDashboardData_(name, password, function (dash) {
+            showDashboard(name, dash);
+            btn.disabled = false;
+            btn.textContent = 'LOGIN';
+          }, function (msg) {
+            document.getElementById('loginError').textContent = msg || 'Could not load registrations.';
+            document.getElementById('loginError').classList.add('visible');
+            btn.disabled = false;
+            btn.textContent = 'LOGIN';
+          });
         }
       } else {
         sheetUrlCache = '';
@@ -346,7 +401,6 @@ function changePassword() {
       saveLoginSession_(pendingLoginName, newPassword);
       setPwChanged_(pendingLoginName, true);
 
-      // 重新用“新密码”登录一次，确保拉到最新的客户数据
       fetch(`${SCRIPT_URL}?action=login&sales=${encodeURIComponent(pendingLoginName)}&password=${encodeURIComponent(newPassword)}`)
         .then(r => r.json())
         .then(loginData => {
@@ -362,7 +416,12 @@ function changePassword() {
             if (sheetBtn) sheetBtn.style.display = 'inline-block';
           }
 
-          showDashboard(pendingLoginName, loginData.data || { fibo: [], ash: [], booth: [] });
+          loadDashboardData_(pendingLoginName, newPassword, function (dash) {
+            showDashboard(pendingLoginName, dash);
+          }, function (msg) {
+            errorEl.textContent = msg || 'Could not load dashboard data.';
+            errorEl.classList.add('visible');
+          });
         })
         .catch(() => {
           errorEl.textContent = 'Connection error when reloading dashboard.';
