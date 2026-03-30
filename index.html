@@ -16,8 +16,12 @@
     .header-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 10vw, 110px); line-height: 0.9; letter-spacing: 0.02em; color: var(--white); opacity: 0; animation: fadeUp 0.7s ease forwards 0.25s; }
     .header-title span { color: var(--gold); display: block; }
     .header-sub { margin-top: 24px; font-size: 14px; color: var(--gray-light); letter-spacing: 0.05em; opacity: 0; animation: fadeUp 0.7s ease forwards 0.4s; }
-    .header-meta { display: inline-flex; gap: 32px; margin-top: 28px; padding: 14px 28px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: var(--gold); opacity: 0; animation: fadeUp 0.7s ease forwards 0.55s; }
+    .header-meta { display: inline-flex; flex-wrap: wrap; justify-content: center; row-gap: 10px; column-gap: 32px; margin-top: 28px; padding: 14px 28px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: var(--gold); opacity: 0; animation: fadeUp 0.7s ease forwards 0.55s; }
     .header-meta span::before { content: '◆ '; font-size: 8px; }
+    @media (max-width: 600px) {
+      .header-meta { flex-direction: column; align-items: center; column-gap: 0; row-gap: 12px; padding: 16px 20px; max-width: 100%; }
+      .header-meta span { white-space: nowrap; text-align: center; }
+    }
     .event-selector { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 40px 24px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     @media (max-width: 600px) { .event-selector { grid-template-columns: 1fr; } }
     .event-card { border: 1px solid rgba(255,255,255,0.1); padding: 28px 24px; cursor: pointer; text-align: center; transition: all 0.25s; position: relative; overflow: hidden; }
@@ -105,7 +109,7 @@
   <div class="header-eyebrow">MBH Fitness — Official Invitation Program</div>
   <h1 class="header-title">2026 FIBO<span>Invitation</span>Information Form</h1>
   <p class="header-sub">Register your meeting appointment with <strong style="color:var(--gold);font-weight:500;">MBH Fitness</strong> at FIBO 2026</p>
-  <div class="header-meta"><span>Cologne, Germany</span><span>April 16 – 19, 2026</span><span>Booth 6A59</span></div>
+  <div class="header-meta"><span>Cologne, Germany</span><span>April 16 – 19, 2026</span><span>Hall 6. Booth A61</span></div>
   <a class="sales-login-btn" href="./view/index.html">Sales Login</a>
 </header>
 
